@@ -1,3 +1,63 @@
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&family=Outfit:wght@100..900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    --background: oklch(0.9816 0.0017 247.8390);
+    --foreground: oklch(0.1649 0.0352 281.8285);
+    --card: oklch(1.0000 0 0);
+    --card-foreground: oklch(0.1649 0.0352 281.8285);
+    --popover: oklch(1.0000 0 0);
+    --popover-foreground: oklch(0.1649 0.0352 281.8285);
+    --primary: oklch(0.6726 0.2904 341.4084);
+    --primary-foreground: oklch(1.0000 0 0);
+    --secondary: oklch(0.9595 0.0200 286.0164);
+    --secondary-foreground: oklch(0.1649 0.0352 281.8285);
+    --muted: oklch(0.9595 0.0200 286.0164);
+    --muted-foreground: oklch(0.1649 0.0352 281.8285);
+    --accent: oklch(0.8903 0.1739 171.2690);
+    --accent-foreground: oklch(0.1649 0.0352 281.8285);
+    --destructive: oklch(0.6535 0.2348 34.0370);
+    --destructive-foreground: oklch(1.0000 0 0);
+    --border: oklch(0.9205 0.0086 225.0878);
+    --input: oklch(0.9205 0.0086 225.0878);
+    --ring: oklch(0.6726 0.2904 341.4084);
+    --radius: 0.5rem;
+    --tracking-normal: 0em;
+  }
+ 
+  .dark {
+    --background: oklch(0.1649 0.0352 281.8285);
+    --foreground: oklch(0.9816 0.0017 247.8390);
+    --card: oklch(0.1649 0.0352 281.8285);
+    --card-foreground: oklch(0.9816 0.0017 247.8390);
+    --popover: oklch(0.1649 0.0352 281.8285);
+    --popover-foreground: oklch(0.9816 0.0017 247.8390);
+    --primary: oklch(0.6726 0.2904 341.4084);
+    --primary-foreground: oklch(1.0000 0 0);
+    --secondary: oklch(0.2 0.02 286.0164);
+    --secondary-foreground: oklch(0.9816 0.0017 247.8390);
+    --muted: oklch(0.2 0.02 286.0164);
+    --muted-foreground: oklch(0.6 0.02 286.0164);
+    --accent: oklch(0.2 0.02 286.0164);
+    --accent-foreground: oklch(0.9816 0.0017 247.8390);
+    --destructive: oklch(0.5 0.2 30.0);
+    --destructive-foreground: oklch(0.9816 0.0017 247.8390);
+    --border: oklch(0.3 0.02 286.0164);
+    --input: oklch(0.3 0.02 286.0164);
+    --ring: oklch(0.6726 0.2904 341.4084);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    letter-spacing: var(--tracking-normal);
+  }
+}

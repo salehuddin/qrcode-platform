@@ -244,6 +244,13 @@ This document outlines all the pages needed for the QR Code Platform application
 - [x] QR Code Details (`/qr-codes/{id}`)
 - [x] User Profile (`/profile`)
 
+### Phase 1.5: Customization Module (Current Sprint) - DESIGN
+- [ ] Advanced Color Picker (Foreground, Background, Gradient)
+- [ ] Pattern & Style Selection (Dots, Rounded, Square)
+- [ ] Eye/Marker Customization
+- [ ] Logo Upload & Positioning
+- [ ] Real-time Preview Integration
+
 ### Phase 2: Analytics & Features (Week 3-4) - FUNCTIONALITY
 - [ ] Analytics Dashboard (`/analytics`)
 - [ ] QR Code Analytics (`/qr-codes/{id}/analytics`)

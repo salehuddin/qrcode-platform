@@ -143,14 +143,15 @@ A comprehensive dynamic QR code and link management platform similar to QR Monke
 - **Laravel Telescope**: Debugging and performance monitoring
 
 ### Frontend Technologies
-- **React 18 + TypeScript**: Component-based UI with type safety
-- **Laravel Breeze + Inertia**: Server-side rendering with React (recommended)
-- **Alternative: Vite + React**: SPA setup with Laravel API backend
-- **Tailwind CSS**: Utility-first styling framework
-- **Headless UI**: Accessible React components
-- **React Query/SWR**: Data fetching (if using API approach)
-- **Chart.js/Recharts**: Analytics visualization
-- **React Hook Form**: Form handling and validation
+* **React 18 + TypeScript**: Component-based UI with type safety
+* **Laravel Breeze + Inertia**: Server-side rendering with React (recommended)
+* **Alternative: Vite + React**: SPA setup with Laravel API backend
+* **Tailwind CSS**: Utility-first styling framework
+* **Headless UI**: Accessible React components
+* **React Query/SWR**: Data fetching (if using API approach)
+* **Chart.js/Recharts**: Analytics visualization
+* **React Hook Form**: Form handling and validation
+* **qr-code-styling**: Advanced QR code generation and customization engine (Logos, Patterns, Shapes)
 
 ### Database and Storage
 - **MySQL/PostgreSQL**: Primary database via Laravel Eloquent
