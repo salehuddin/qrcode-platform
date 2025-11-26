@@ -1,10 +1,13 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link } from '@inertiajs/react';
-import { PageProps, QRCodeType } from '@/types';
+import { Head, Link, router } from '@inertiajs/react';
+import { PageProps, QRCodeType, QRCustomization, QRCodeMode } from '@/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/Components/ui/card';
 import { Button } from '@/Components/ui/button';
 import { Badge } from '@/Components/ui/badge';
-import { useState } from 'react';
+import { Input } from '@/Components/ui/input';
+import { Textarea } from '@/Components/ui/textarea';
+import { Label } from '@/Components/ui/label';
+import { useMemo, useState } from 'react';
 import { UrlForm } from './Partials/UrlForm';
 import { VCardForm } from './Partials/VCardForm';
 import { WifiForm } from './Partials/WifiForm';
@@ -13,6 +16,8 @@ import { EmailForm } from './Partials/EmailForm';
 import { PhoneForm } from './Partials/PhoneForm';
 import { LocationForm } from './Partials/LocationForm';
 import { EventForm } from './Partials/EventForm';
+import { CustomizeForm } from './Partials/CustomizeForm';
+import { QRCodePreview } from './Partials/QRCodePreview';
 
 const qrTypes: Array<{
     type: QRCodeType;
@@ -75,7 +80,28 @@ const qrTypes: Array<{
 
 export default function CreateQRCode({}: PageProps) {
     const [selectedType, setSelectedType] = useState<QRCodeType | null>(null);
+    const [mode, setMode] = useState<QRCodeMode>('dynamic');
+    const [name, setName] = useState('');
+    const [description, setDescription] = useState('');
     const [qrData, setQrData] = useState<any>({});
+    const [customization, setCustomization] = useState<Partial<QRCustomization>>({
+        dotsColor: '#000000',
+        backgroundColor: '#ffffff',
+        cornersSquareColor: '#000000',
+        cornersDotsColor: '#000000',
+        dotsType: 'square',
+        cornersSquareType: 'square',
+        cornersDotsType: 'dot',
+        gradientEnabled: false,
+        gradientType: 'linear',
+        gradientStartColor: '#000000',
+        gradientEndColor: '#000000',
+        gradientRotation: 0,
+        width: 300,
+        height: 300,
+        errorCorrectionLevel: 'M',
+        imageSize: 0.2,
+    });
 
     const handleTypeSelect = (type: QRCodeType) => {
         setSelectedType(type);
@@ -95,6 +121,99 @@ export default function CreateQRCode({}: PageProps) {
             [key]: value
         }));
     };
+
+    const handleCustomizationChange = (key: keyof QRCustomization, value: string | number | boolean) => {
+        setCustomization((prev) => {
+            // If the user changes the size (width), always mirror it to height so output stays square
+            if (key === 'width' && typeof value === 'number' && !Number.isNaN(value)) {
+                return { ...prev, width: value, height: value };
+            }
+
+            return { ...prev, [key]: value } as Partial<QRCustomization>;
+        });
+    };
+
+    const encodeData = useMemo(() => {
+        if (!selectedType) return '';
+        try {
+            switch (selectedType) {
+                case 'url':
+                    return qrData.url || '';
+                case 'wifi': {
+                    const ssid = qrData.ssid || '';
+                    const pass = qrData.password || '';
+                    const t = qrData.encryption || 'WPA';
+                    const hidden = qrData.hidden ? 'H:true;' : '';
+                    return `WIFI:T:${t};S:${ssid};P:${pass};${hidden};`;
+                }
+                case 'sms': {
+                    const num = qrData.phone || '';
+                    const body = qrData.message ? `?body=${encodeURIComponent(qrData.message)}` : '';
+                    return `SMSTO:${num}:${qrData.message || ''}` || `sms:${num}${body}`;
+                }
+                case 'email': {
+                    const to = qrData.to || '';
+                    const subject = qrData.subject ? `?subject=${encodeURIComponent(qrData.subject)}` : '';
+                    const body = qrData.body ? `${subject ? '&' : '?'}body=${encodeURIComponent(qrData.body)}` : '';
+                    return `mailto:${to}${subject}${body}`;
+                }
+                case 'phone':
+                    return qrData.number ? `tel:${qrData.number}` : '';
+                case 'location': {
+                    const lat = qrData.latitude;
+                    const lng = qrData.longitude;
+                    return lat && lng ? `geo:${lat},${lng}` : '';
+                }
+                case 'event': {
+                    // Basic VEVENT minimal
+                    const dtStart = qrData.start ? new Date(qrData.start).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z' : '';
+                    const dtEnd = qrData.end ? new Date(qrData.end).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z' : '';
+                    const summary = qrData.title || '';
+                    const location = qrData.location || '';
+                    return `BEGIN:VCALENDAR\nBEGIN:VEVENT\nSUMMARY:${summary}\nLOCATION:${location}\nDTSTART:${dtStart}\nDTEND:${dtEnd}\nEND:VEVENT\nEND:VCALENDAR`;
+                }
+                case 'vcard': {
+                    const first = qrData.firstName || '';
+                    const last = qrData.lastName || '';
+                    const phone = qrData.phone || '';
+                    const email = qrData.email || '';
+                    const org = qrData.organization || '';
+                    const title = qrData.title || '';
+                    return `BEGIN:VCARD\nVERSION:3.0\nN:${last};${first};;;\nFN:${first} ${last}\nORG:${org}\nTITLE:${title}\nTEL;TYPE=CELL:${phone}\nEMAIL:${email}\nEND:VCARD`;
+                }
+                default:
+                    return '';
+            }
+        } catch {
+            return '';
+        }
+    }, [selectedType, qrData]);
+
+    const permalink = useMemo(() => {
+        if (mode !== 'dynamic') return '';
+
+        const baseUrl = 'https://example.test';
+        const slugBase = name
+            ? name
+                  .trim()
+                  .toLowerCase()
+                  .replace(/[^a-z0-9]+/g, '-')
+                  .replace(/^-+|-+$/g, '')
+            : 'new-qr';
+
+        const shortCode = `demo-${slugBase}`;
+        return `${baseUrl}/r/${shortCode}`;
+    }, [mode, name]);
+
+    const qrContent = useMemo(() => {
+        if (!selectedType) return '';
+
+        if (mode === 'dynamic' && permalink) {
+            return permalink;
+        }
+
+        return encodeData;
+    }, [selectedType, mode, permalink, encodeData]);
 
     const renderForm = () => {
         switch (selectedType) {
@@ -119,6 +238,39 @@ export default function CreateQRCode({}: PageProps) {
         }
     };
 
+    const handleSubmit = () => {
+        if (!selectedType || !encodeData) {
+            return;
+        }
+
+        const design = {
+            foreground_color: customization.dotsColor || '#000000',
+            background_color: customization.backgroundColor || '#ffffff',
+            pattern: (() => {
+                const t = customization.dotsType || 'square';
+                if (t === 'dots') return 'dots';
+                if (t === 'rounded' || t === 'classy' || t === 'classy-rounded') return 'rounded';
+                return 'square';
+            })(),
+            error_correction: customization.errorCorrectionLevel || 'M',
+        };
+
+        const destinationUrl = selectedType === 'url' && qrData.url ? qrData.url : null;
+        const finalContent = qrContent || encodeData;
+
+        router.post(route('qr-codes.store'), {
+            name,
+            description,
+            mode,
+            type: selectedType,
+            content: finalContent,
+            permalink: mode === 'dynamic' ? permalink : null,
+            destination_url: destinationUrl,
+            design,
+            customization,
+        });
+    };
+
     return (
         <AuthenticatedLayout
             header={
@@ -128,7 +280,7 @@ export default function CreateQRCode({}: PageProps) {
                             Create QR Code
                         </h2>
                         <p className="text-sm text-gray-600 mt-1">
-                            Create and customize your dynamic QR code
+                            Create and customize your static or dynamic QR code
                         </p>
                     </div>
                     <Button asChild variant="outline">
@@ -144,13 +296,14 @@ export default function CreateQRCode({}: PageProps) {
             <div className="py-12">
                 <div className="mx-auto max-w-6xl sm:px-6 lg:px-8">
                     <div className="space-y-12">
-                        {/* Sticky Navigation */}
+                        {/* Sticky Navigation */} 
                         <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 py-4 -mx-4 px-4 border-b">
                             <div className="flex items-center justify-center space-x-8">
                                 {[
-                                    { id: 'select-type', label: '1. Select Type' },
-                                    { id: 'configure', label: '2. Configure' },
-                                    { id: 'customize', label: '3. Customize' }
+                                    { id: 'details', label: '1. Details & Mode' },
+                                    { id: 'select-type', label: '2. Select Type' },
+                                    { id: 'configure', label: '3. Configure' },
+                                    { id: 'customize', label: '4. Customize' },
                                 ].map((item) => (
                                     <button
                                         key={item.id}
@@ -163,9 +316,91 @@ export default function CreateQRCode({}: PageProps) {
                             </div>
                         </div>
 
-                        {/* Section 1: Select Type */}
+                        {/* Section 1: QR Details & Mode */}
+                        <div id="details" className="scroll-mt-24 space-y-6">
+                            <h3 className="text-2xl font-bold">1. QR Details &amp; Mode</h3>
+
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>QR Configuration</CardTitle>
+                                    <CardDescription>
+                                        Set up the basics of your QR before choosing its type and content.
+                                    </CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="grid gap-4 md:grid-cols-2">
+                                        <div className="space-y-3">
+                                            <div className="space-y-2">
+                                                <Label htmlFor="qr-name">QR Name</Label>
+                                                <Input
+                                                    id="qr-name"
+                                                    placeholder="e.g. Fall Campaign Landing Page"
+                                                    value={name}
+                                                    onChange={(e) => setName(e.target.value)}
+                                                />
+                                                <p className="text-xs text-muted-foreground">
+                                                    Optional label to help you recognize this QR in your dashboard.
+                                                </p>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor="qr-description">Description</Label>
+                                                <Textarea
+                                                    id="qr-description"
+                                                    placeholder="Internal notes about where this QR will be used."
+                                                    value={description}
+                                                    onChange={(e) => setDescription(e.target.value)}
+                                                    rows={3}
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="space-y-3">
+                                            <div className="space-y-2">
+                                                <Label>Mode</Label>
+                                                <div className="inline-flex items-center rounded-md border bg-muted/40 p-1 text-xs">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setMode('dynamic')}
+                                                        className={`rounded-sm px-3 py-1 font-medium transition-colors ${
+                                                            mode === 'dynamic'
+                                                                ? 'bg-primary text-primary-foreground shadow'
+                                                                : 'text-muted-foreground hover:bg-background'
+                                                        }`}
+                                                    >
+                                                        Dynamic (recommended)
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setMode('static')}
+                                                        className={`rounded-sm px-3 py-1 font-medium transition-colors ${
+                                                            mode === 'static'
+                                                                ? 'bg-primary text-primary-foreground shadow'
+                                                                : 'text-muted-foreground hover:bg-background'
+                                                        }`}
+                                                    >
+                                                        Static
+                                                    </button>
+                                                </div>
+                                                <p className="text-xs text-muted-foreground">
+                                                    Dynamic QR encodes a short permalink you can update later. Static QR encodes the content directly.
+                                                </p>
+                                            </div>
+                                            {mode === 'dynamic' && (
+                                                <div className="space-y-1">
+                                                    <Label>Permalink (preview)</Label>
+                                                    <div className="rounded border bg-muted px-2 py-1 text-xs font-mono break-all">
+                                                        {permalink || 'https://example.test/r/demo-new-qr'}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
+
+                        {/* Section 2: Select Type */}
                         <div id="select-type" className="scroll-mt-24 space-y-6">
-                            <h3 className="text-2xl font-bold">1. Select QR Code Type</h3>
+                            <h3 className="text-2xl font-bold">2. Select QR Code Type</h3>
                             
                             {/* Popular Types */}
                             <div>
@@ -233,9 +468,9 @@ export default function CreateQRCode({}: PageProps) {
 
                         <div className="grid gap-8 lg:grid-cols-3">
                             <div className="lg:col-span-2 space-y-12">
-                                {/* Section 2: Configure */}
+                                {/* Section 3: Configure */}
                                 <div id="configure" className="scroll-mt-24 space-y-6">
-                                    <h3 className="text-2xl font-bold">2. Configure Content</h3>
+                                    <h3 className="text-2xl font-bold">3. Configure Content</h3>
                                     
                                     <Card className={!selectedType ? "opacity-50 pointer-events-none" : ""}>
                                         <CardHeader>
@@ -253,7 +488,9 @@ export default function CreateQRCode({}: PageProps) {
                                             </CardDescription>
                                         </CardHeader>
                                         <CardContent>
-                                            {selectedType ? renderForm() : (
+                                            {selectedType ? (
+                                                renderForm()
+                                            ) : (
                                                 <div className="h-32 flex items-center justify-center border-2 border-dashed rounded-lg bg-muted/50">
                                                     <p className="text-muted-foreground">No type selected</p>
                                                 </div>
@@ -262,9 +499,9 @@ export default function CreateQRCode({}: PageProps) {
                                     </Card>
                                 </div>
 
-                                {/* Section 3: Customize */}
+                                {/* Section 4: Customize */}
                                 <div id="customize" className="scroll-mt-24 space-y-6">
-                                    <h3 className="text-2xl font-bold">3. Customize Design</h3>
+                                    <h3 className="text-2xl font-bold">4. Customize Design</h3>
                                     
                                     <Card className={!selectedType ? "opacity-50 pointer-events-none" : ""}>
                                         <CardHeader>
@@ -274,19 +511,26 @@ export default function CreateQRCode({}: PageProps) {
                                             </CardDescription>
                                         </CardHeader>
                                         <CardContent>
-                                            <div className="text-center py-8">
-                                                <p className="text-muted-foreground">
-                                                    Design customization features coming soon.
-                                                </p>
-                                            </div>
+                                            {selectedType ? (
+                                                <CustomizeForm
+                                                    qrData={qrData}
+                                                    customization={customization}
+                                                    onCustomizationChange={handleCustomizationChange}
+                                                />
+                                            ) : (
+                                                <div className="text-center py-8">
+                                                    <p className="text-muted-foreground">Select a type and configure content first.</p>
+                                                </div>
+                                            )}
                                         </CardContent>
                                     </Card>
 
                                     <div className="flex justify-end pt-4">
                                         <Button 
                                             size="lg" 
-                                            disabled={!selectedType}
+                                            disabled={!selectedType || !encodeData}
                                             className="w-full sm:w-auto"
+                                            onClick={handleSubmit}
                                         >
                                             Create QR Code
                                         </Button>
@@ -302,14 +546,8 @@ export default function CreateQRCode({}: PageProps) {
                                             <CardTitle className="text-sm font-medium">Live Preview</CardTitle>
                                         </CardHeader>
                                         <CardContent className="flex flex-col items-center justify-center p-8 bg-white">
-                                            <div className="w-48 h-48 bg-white border-2 border-gray-900 flex items-center justify-center rounded-lg shadow-sm">
-                                                {/* This would be the actual QR code component */}
-                                                <div className="grid grid-cols-2 gap-1 w-32 h-32 opacity-20">
-                                                    <div className="bg-black rounded-sm"></div>
-                                                    <div className="bg-black rounded-sm"></div>
-                                                    <div className="bg-black rounded-sm"></div>
-                                                    <div className="bg-black rounded-sm"></div>
-                                                </div>
+                                            <div className="w-full">
+                                                <QRCodePreview data={qrContent} customization={customization} />
                                             </div>
                                             <p className="mt-4 text-xs text-muted-foreground text-center">
                                                 {selectedType 

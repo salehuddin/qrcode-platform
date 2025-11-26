@@ -97,9 +97,37 @@ This document outlines all the pages needed for the QR Code Platform application
 - Edit and delete actions
 - Duplicate option
 
+## 🔁 Dynamic QR & Redirect Management
+
+### 14. Dynamic QR Mode & Create Flow (`/qr-codes/create`)
+**Purpose**: Configure static vs dynamic behavior when creating QR codes
+**Contents**:
+- Mode selector: Static vs Dynamic
+- Name and description fields
+- Destination type and content configuration (URL, vCard, WiFi, etc.)
+- Preview of the generated permalink (e.g. `/r/{code}`)
+- Explanation of how dynamic QR works vs static
+
+### 15. Dynamic QR Details & Destination Management (`/qr-codes/{id}`)
+**Purpose**: View QR metadata and manage destination/behavior for dynamic QR codes
+**Contents**:
+- Display of QR name, description, mode, and created/updated dates
+- Show system permalink and copy-to-clipboard
+- Editable destination configuration for dynamic codes (URL or structured content)
+- Quick link to analytics for this QR (`/qr-codes/{id}/analytics`)
+- Status controls (active/paused)
+
+### 16. Redirect Logs & Link List (`/links` or `/qr-codes/links`)
+**Purpose**: Optional consolidated view of all permalink redirects
+**Contents**:
+- Table of all short links/permalinks (code, target, type, owner)
+- Basic scan counters per link
+- Filters by status, type, and owner
+- Quick actions to edit destination or deactivate links
+
 ## 📈 Analytics & Reporting
 
-### 14. Analytics Dashboard (`/analytics`)
+### 17. Analytics Dashboard (`/analytics`)
 **Purpose**: Overall analytics and insights
 **Contents**:
 - Key metrics dashboard
@@ -110,7 +138,7 @@ This document outlines all the pages needed for the QR Code Platform application
 - Conversion funnel
 - Export reports (CSV, PDF)
 
-### 15. QR Code Analytics (`/qr-codes/{id}/analytics`)
+### 18. QR Code Analytics (`/qr-codes/{id}/analytics`)
 **Purpose**: Detailed analytics for specific QR code
 **Contents**:
 - Scan timeline chart
@@ -123,7 +151,7 @@ This document outlines all the pages needed for the QR Code Platform application
 
 ## 🎨 Design & Templates
 
-### 16. Templates (`/templates`)
+### 19. Templates (`/templates`)
 **Purpose**: Browse and use pre-made QR designs
 **Contents**:
 - Template gallery with categories
@@ -133,7 +161,7 @@ This document outlines all the pages needed for the QR Code Platform application
 - Custom template creation
 - Template sharing (future feature)
 
-### 17. Design Studio (`/design`)
+### 20. Design Studio (`/design`)
 **Purpose**: Advanced QR code customization
 **Contents**:
 - Advanced design tools
@@ -146,7 +174,7 @@ This document outlines all the pages needed for the QR Code Platform application
 
 ## 👥 Team & User Management
 
-### 18. Team Members (`/team`)
+### 21. Team Members (`/team`)
 **Purpose**: Manage organization members and permissions
 **Contents**:
 - Team members table with roles
@@ -156,7 +184,7 @@ This document outlines all the pages needed for the QR Code Platform application
 - Member activity overview
 - Remove/deactivate members
 
-### 19. User Profile (`/profile`)
+### 22. User Profile (`/profile`)
 **Purpose**: Personal account management
 **Contents**:
 - Personal information form
@@ -169,7 +197,7 @@ This document outlines all the pages needed for the QR Code Platform application
 
 ## ⚙️ Settings & Configuration
 
-### 20. Organization Settings (`/settings`)
+### 23. Organization Settings (`/settings`)
 **Purpose**: Configure organization-wide settings
 **Contents**:
 - Organization profile information
@@ -179,7 +207,7 @@ This document outlines all the pages needed for the QR Code Platform application
 - Integration settings (Google Analytics, webhooks)
 - Data export options
 
-### 21. Subscription & Billing (`/billing`)
+### 24. Subscription & Billing (`/billing`)
 **Purpose**: Manage subscription and payments
 **Contents**:
 - Current plan information and usage
@@ -192,7 +220,7 @@ This document outlines all the pages needed for the QR Code Platform application
 
 ## 🔧 Admin Pages (Admin Users Only)
 
-### 22. Admin Dashboard (`/admin`)
+### 25. Admin Dashboard (`/admin`)
 **Purpose**: Platform-wide administration
 **Contents**:
 - Platform statistics overview
@@ -202,7 +230,7 @@ This document outlines all the pages needed for the QR Code Platform application
 - Recent user activity
 - Support ticket summary
 
-### 23. User Management (`/admin/users`)
+### 26. User Management (`/admin/users`)
 **Purpose**: Manage all platform users
 **Contents**:
 - All users table with search/filter
@@ -214,7 +242,7 @@ This document outlines all the pages needed for the QR Code Platform application
 
 ## 📞 Support & Help
 
-### 24. Help Center (`/help`)
+### 27. Help Center (`/help`)
 **Purpose**: Self-service documentation and tutorials
 **Contents**:
 - Knowledge base articles
@@ -224,7 +252,7 @@ This document outlines all the pages needed for the QR Code Platform application
 - Search functionality
 - Categories and tags
 
-### 25. Contact/Support (`/contact`)
+### 28. Contact/Support (`/contact`)
 **Purpose**: Customer support and feedback
 **Contents**:
 - Contact form with categories
@@ -245,15 +273,16 @@ This document outlines all the pages needed for the QR Code Platform application
 - [x] User Profile (`/profile`)
 
 ### Phase 1.5: Customization Module (Current Sprint) - DESIGN
-- [ ] Advanced Color Picker (Foreground, Background, Gradient)
-- [ ] Pattern & Style Selection (Dots, Rounded, Square)
-- [ ] Eye/Marker Customization
-- [ ] Logo Upload & Positioning
-- [ ] Real-time Preview Integration
+- [x] Color Picker (Foreground, Background)
+- [x] Gradient Color Support
+- [x] Pattern & Style Selection (Dots, Rounded, Square)
+- [x] Eye/Marker Customization (corner squares & dots types)
+- [x] Logo Upload & Sizing (centered logo)
+- [x] Real-time Preview Integration (qr-code-styling + exports)
 
 ### Phase 2: Analytics & Features (Week 3-4) - FUNCTIONALITY
-- [ ] Analytics Dashboard (`/analytics`)
-- [ ] QR Code Analytics (`/qr-codes/{id}/analytics`)
+- [x] Analytics Dashboard (`/analytics`)
+- [x] QR Code Analytics (`/qr-codes/{id}/analytics`)
 - [ ] Edit QR Code (`/qr-codes/{id}/edit`)
 - [ ] Templates (`/templates`)
 

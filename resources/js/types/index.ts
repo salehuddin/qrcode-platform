@@ -7,9 +7,14 @@ export interface User {
     updated_at: string;
 }
 
+export type QRCodeMode = 'static' | 'dynamic';
+
 export interface QRCode {
     id: string;
     name: string;
+    description?: string;
+    mode?: QRCodeMode;
+    permalink?: string;
     type: QRCodeType;
     content: string;
     destination_url?: string;
@@ -20,6 +25,7 @@ export interface QRCode {
     created_at: string;
     updated_at: string;
     design: QRCodeDesign;
+    customization?: QRCustomization;
     user_id: number;
 }
 
@@ -61,6 +67,27 @@ export interface DashboardStats {
     scans_this_month: number;
     top_performing_codes: QRCode[];
     recent_scans: ScanEvent[];
+}
+
+export interface QRCustomization {
+    dotsColor: string;
+    backgroundColor: string;
+    cornersSquareColor: string;
+    cornersDotsColor: string;
+    dotsType: 'square' | 'rounded' | 'dots' | 'classy' | 'classy-rounded';
+    cornersSquareType: 'square' | 'dot';
+    cornersDotsType: 'square' | 'dot';
+    // Gradient options for dots
+    gradientEnabled?: boolean;
+    gradientType?: 'linear' | 'radial';
+    gradientStartColor?: string;
+    gradientEndColor?: string;
+    gradientRotation?: number; // degrees 0-360
+    width: number;
+    height: number;
+    image?: string;
+    imageSize?: number;
+    errorCorrectionLevel: 'L' | 'M' | 'Q' | 'H';
 }
 
 export type PageProps<T = Record<string, any>> = {

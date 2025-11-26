@@ -102,6 +102,11 @@ export default function Dashboard({ stats }: PageProps<{ stats: DashboardStats }
                                         View All QR Codes
                                     </Button>
                                 </Link>
+                                <Link href={route('analytics')}>
+                                    <Button variant="outline" className="w-full justify-start">
+                                        Open Analytics Dashboard
+                                    </Button>
+                                </Link>
                                 <Link href={route('profile.edit')}>
                                     <Button variant="outline" className="w-full justify-start">
                                         Manage Profile

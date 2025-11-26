@@ -5,8 +5,17 @@ A comprehensive dynamic QR code and link management platform similar to QR Monke
 
 ## Core Features
 
+### Editions & Deployment Modes
+- **Internal Edition**: Single-tenant/internal deployment used by admins and normal users only. No payment wall or subscription management is required; all QR, dynamic link, and analytics features are available without plan limits.
+- **SaaS Edition**: Multi-tenant, subscription-based deployment exposed to external customers. Adds billing, subscription tiers, usage limits, and marketing site pages on top of the same core QR/dynamic/analytics engine.
+- **Feature Flags**: A small set of configuration flags control which edition-specific capabilities are enabled at runtime (e.g. billing, team management, marketing site), allowing both editions to share one codebase.
+
 ### 1. Dynamic QR Code Management
 - **Editable Links**: Dynamic QR Codes can automatically redirect users to a web page at any time without changing the original QR Code. You can update the destination as often as you like without any changes to the QR Code design.
+- **Static vs Dynamic Modes**:
+  - *Static QR*: Encodes final content directly (URL/vCard/WiFi/etc). Changing the destination requires generating a new QR code.
+  - *Dynamic QR*: Encodes a system-owned permalink (e.g. `/r/{code}`) that maps to a QR record in the database. The permalink never changes; only the destination and behavior behind it do.
+- **Permalink Generation**: Each dynamic QR has a unique, short permalink that is used in the QR image and can be shared externally.
 - **QR Code CRUD Operations**: Full create, read, update, delete functionality for QR codes
 - **Permanent QR Codes**: Generated codes never expire and work forever
 - **Multiple QR Types**: Support for URL, vCard, WiFi, SMS, email, phone, location, events, and more
@@ -43,13 +52,19 @@ A comprehensive dynamic QR code and link management platform similar to QR Monke
 
 ### 1. QR Code Generation Engine
 - **Static QR Generation**: Basic QR codes with direct data encoding
-- **Dynamic QR System**: Short URL redirection service with tracking
+- **Dynamic QR System**:
+  - Generate short codes / permalinks for each dynamic QR (e.g. `/r/{code}`).
+  - Encode the permalink URL into the QR image instead of the final destination.
+  - Allow destinations (e.g. target URLs) to be edited without changing the QR image.
+- **Destination Types**: URL, vCard, WiFi, SMS, Email, Phone, Location, Events.
 - **Customization Engine**: Logo embedding, color/style application
 - **Export System**: Multi-format output (PNG, SVG, PDF, EPS)
 - **Error Correction**: Reed-Solomon error correction for logo embedding
 
 ### 2. URL Shortening Service
 - **Short URL Generation**: Custom domain support (qr.yoursite.com)
+- **Permalink Model**: Each dynamic QR is backed by a short URL record that stores the current destination and metadata.
+- **Redirect Endpoint**: Public route (e.g. `/r/{code}`) that resolves the permalink, records a scan event, and redirects to the current destination.
 - **Redirect Tracking**: Capture scan events with metadata
 - **Link Management**: Edit destination URLs without changing QR code
 - **Custom Domains**: Allow users to use their own domains
@@ -100,10 +115,10 @@ A comprehensive dynamic QR code and link management platform similar to QR Monke
 - User registration and basic auth
 
 ### Phase 2: Dynamic QR System (Week 3-4)
-- URL shortening service
-- Dynamic QR code creation
-- Basic redirect tracking
-- Link editing functionality
+- URL shortening service (permalink generation for dynamic QR codes)
+- Dynamic QR code creation with mode selection (Static vs Dynamic)
+- Basic redirect tracking via `/r/{code}` endpoint
+- Link editing functionality without re-generating QR images
 
 ### Phase 3: Advanced Customization (Week 5-6)
 - Logo embedding system
@@ -117,11 +132,12 @@ A comprehensive dynamic QR code and link management platform similar to QR Monke
 - Export capabilities
 - Google Analytics integration
 
-### Phase 5: User Management (Week 9-10)
+### Phase 5: User Management & Editions (Week 9-10)
 - Multi-user support
 - Role-based access control
 - Team collaboration features
 - Admin panel for user management
+- Introduce `APP_EDITION` and feature flags to support "internal" vs "saas" deployments from a single codebase.
 
 ### Phase 6: Polish and Scale (Week 11-12)
 - Performance optimization

@@ -28,11 +28,12 @@
 - **Team Management**: Invite members, manage permissions
 - **Brand Consistency**: Template locking and brand kits
 
-### 🔒 Enterprise Features
+### 🔒 Enterprise & Editions
 - **Custom Domains**: Use your own branded short domains
 - **API Access**: Programmatic QR code generation and management
 - **Advanced Security**: Two-factor authentication, audit logs
 - **Subscription Management**: Multiple pricing tiers with usage limits
+- **Editions via Feature Flags**: `APP_EDITION` (`internal` or `saas`) and `FEATURE_*` flags control which capabilities (billing, team management, marketing pages) are enabled without forking the codebase.
 
 ## 🚀 Tech Stack
 
@@ -152,9 +153,10 @@ qrcode-platform/
 - [ ] Core page creation (Dashboard, QR List, Create QR)
 
 ### Phase 2: Core Features (Week 3-4)
-- [ ] QR code generation engine
-- [ ] Basic customization (colors, logos)
-- [ ] URL shortening service
+- [ ] Dynamic vs static QR modes in Create flow (mode toggle, name/description fields)
+- [ ] URL shortening service & permalink model for dynamic QR codes
+- [ ] Redirect endpoint `/r/{code}` with basic scan logging
+- [ ] Store destination separately from encoded content for dynamic QR codes
 - [ ] Analytics foundation
 
 ### Phase 3: Advanced Features (Week 5-6)
@@ -163,10 +165,11 @@ qrcode-platform/
 - [ ] Template system
 - [ ] Export functionality
 
-### Phase 4: Enterprise & Polish (Week 7-8)
+### Phase 4: Enterprise & Editions (Week 7-8)
 - [ ] Admin dashboard
 - [ ] Subscription system
 - [ ] API development
+- [ ] Introduce `APP_EDITION` and `FEATURE_*` flags to support internal vs SaaS deployments.
 - [ ] Performance optimization
 
 ## 🤝 Contributing

@@ -1,39 +1,36 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router } from '@inertiajs/react';
-import { PageProps } from '@/types';
-import { QRCode } from '@/types';
+import { PageProps, QRCode, QRCustomization } from '@/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/Components/ui/card';
 import { Button } from '@/Components/ui/button';
 import { Badge } from '@/Components/ui/badge';
+import { QRCodePreview } from './Partials/QRCodePreview';
 
 interface QRCodeShowProps extends PageProps {
     qrcode: QRCode;
 }
 
 export default function Show({ auth, qrcode }: QRCodeShowProps) {
-    // Mock data for demonstration
-    const mockQRCode: QRCode = {
-        id: '1',
-        name: 'Website Homepage',
-        type: 'url',
-        content: 'https://example.com',
-        destination_url: 'https://example.com',
-        is_active: true,
-        scan_count: 245,
-        unique_scans: 198,
-        last_scanned_at: '2024-11-23 14:30:00',
-        created_at: '2024-11-20 10:00:00',
-        updated_at: '2024-11-23 14:30:00',
-        design: {
-            foreground_color: '#000000',
-            background_color: '#FFFFFF',
-            pattern: 'square',
-            error_correction: 'M'
-        },
-        user_id: 1
-    };
+    const currentQR = qrcode;
 
-    const currentQR = qrcode || mockQRCode;
+    const customization: Partial<QRCustomization> = currentQR.customization ?? {
+        dotsColor: currentQR.design.foreground_color,
+        backgroundColor: currentQR.design.background_color,
+        cornersSquareColor: currentQR.design.foreground_color,
+        cornersDotsColor: currentQR.design.foreground_color,
+        dotsType:
+            currentQR.design.pattern === 'dots'
+                ? 'dots'
+                : currentQR.design.pattern === 'rounded'
+                ? 'rounded'
+                : 'square',
+        cornersSquareType: 'square',
+        cornersDotsType: 'dot',
+        width: 300,
+        height: 300,
+        errorCorrectionLevel: currentQR.design.error_correction,
+        imageSize: 0.2,
+    };
 
     const handleEdit = () => {
         router.visit(`/qr-codes/${currentQR.id}/edit`);
@@ -45,11 +42,6 @@ export default function Show({ auth, qrcode }: QRCodeShowProps) {
         }
     };
 
-    const handleDownload = () => {
-        // Mock download functionality
-        alert('Download QR code functionality will be implemented here');
-    };
-
     return (
         <AuthenticatedLayout
             header={
@@ -58,11 +50,13 @@ export default function Show({ auth, qrcode }: QRCodeShowProps) {
                         QR Code Details
                     </h2>
                     <div className="flex gap-2">
+                        <Button asChild variant="outline">
+                            <Link href={`/qr-codes/${currentQR.id}/analytics`}>
+                                View Analytics
+                            </Link>
+                        </Button>
                         <Button onClick={handleEdit} variant="outline">
                             Edit
-                        </Button>
-                        <Button onClick={handleDownload}>
-                            Download
                         </Button>
                     </div>
                 </div>
@@ -94,8 +88,8 @@ export default function Show({ auth, qrcode }: QRCodeShowProps) {
                                         </CardDescription>
                                     </CardHeader>
                                     <CardContent className="flex justify-center">
-                                        <div className="w-48 h-48 bg-gray-200 border-2 border-dashed border-gray-300 flex items-center justify-center">
-                                            <span className="text-gray-500">QR Code Image</span>
+                                        <div className="max-w-xs w-full">
+                                            <QRCodePreview data={currentQR.content} customization={customization} />
                                         </div>
                                     </CardContent>
                                 </Card>
@@ -194,12 +188,6 @@ export default function Show({ auth, qrcode }: QRCodeShowProps) {
                             <div className="mt-6 flex gap-3">
                                 <Button onClick={handleEdit}>
                                     Edit QR Code
-                                </Button>
-                                <Button onClick={handleDownload} variant="outline">
-                                    Download PNG
-                                </Button>
-                                <Button onClick={handleDownload} variant="outline">
-                                    Download SVG
                                 </Button>
                                 <Button onClick={handleDelete} variant="destructive">
                                     Delete QR Code

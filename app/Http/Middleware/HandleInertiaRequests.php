@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
 use Inertia\Middleware;
+use App\Support\Feature;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -33,6 +34,13 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'auth' => [
                 'user' => $request->user(),
+            ],
+            'features' => [
+                'edition' => Feature::edition(),
+                'billing' => Feature::enabled('billing'),
+                'teamManagement' => Feature::enabled('team_management'),
+                'marketingSite' => Feature::enabled('marketing_site'),
+                'apiKeys' => Feature::enabled('api_keys'),
             ],
         ];
     }
