@@ -274,20 +274,13 @@ export default function CreateQRCode({}: PageProps) {
     return (
         <AuthenticatedLayout
             header={
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                            Create QR Code
-                        </h2>
-                        <p className="text-sm text-gray-600 mt-1">
-                            Create and customize your static or dynamic QR code
-                        </p>
-                    </div>
-                    <Button asChild variant="outline">
-                        <Link href="/qr-codes">
-                            Back to QR Codes
-                        </Link>
-                    </Button>
+                <div>
+                    <h2 className="text-xl font-semibold leading-tight text-gray-800">
+                        Create QR Code
+                    </h2>
+                    <p className="text-sm text-gray-600 mt-1">
+                        Create and customize your static or dynamic QR code
+                    </p>
                 </div>
             }
         >
@@ -296,6 +289,11 @@ export default function CreateQRCode({}: PageProps) {
             <div className="py-12">
                 <div className="mx-auto max-w-6xl sm:px-6 lg:px-8">
                     <div className="space-y-12">
+                        <Button asChild variant="outline" size="sm">
+                            <Link href="/qr-codes">
+                                ← Back to QR Codes
+                            </Link>
+                        </Button>
                         {/* Sticky Navigation */} 
                         <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 py-4 -mx-4 px-4 border-b">
                             <div className="flex items-center justify-center space-x-8">

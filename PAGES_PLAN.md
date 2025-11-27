@@ -293,8 +293,8 @@ This document outlines all the pages needed for the QR Code Platform application
 - [ ] Subscription & Billing (`/billing`)
 
 ### Phase 4: Admin & Polish (Week 7-8) - ADMIN & MARKETING
-- [ ] Admin Dashboard (`/admin`)
-- [ ] User Management (`/admin/users`)
+- [x] Admin Dashboard (`/admin`)
+- [x] User Management (`/admin/users`)
 - [ ] Help Center (`/help`)
 - [ ] Landing Page (`/`)
 - [ ] About Page (`/about`)

@@ -125,6 +125,107 @@ Route::get('/analytics', function () {
 })->middleware(['auth', 'verified'])->name('analytics');
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/admin', function () {
+        // Mock admin dashboard data
+        return Inertia::render('Admin/Dashboard', [
+            'platformStats' => [
+                ['label' => 'Total Users', 'value' => 1280, 'sublabel' => 'All active accounts'],
+                ['label' => 'Organizations', 'value' => 42, 'sublabel' => 'Teams & companies'],
+                ['label' => 'Active Subscriptions', 'value' => 310, 'sublabel' => 'Paid plans'],
+                ['label' => 'Scans (24h)', 'value' => 8450, 'sublabel' => 'Across all QR codes'],
+            ],
+            'userGrowth' => [
+                ['label' => 'Mon', 'value' => 25],
+                ['label' => 'Tue', 'value' => 30],
+                ['label' => 'Wed', 'value' => 45],
+                ['label' => 'Thu', 'value' => 40],
+                ['label' => 'Fri', 'value' => 55],
+                ['label' => 'Sat', 'value' => 38],
+                ['label' => 'Sun', 'value' => 32],
+            ],
+            'systemHealth' => [
+                'status' => 'healthy',
+                'incidentsOpen' => 0,
+                'lastIncident' => 'Minor latency on EU cluster (2 days ago)',
+            ],
+            'revenueSummary' => [
+                'mrr' => 12450,
+                'arr' => 12450 * 12,
+                'arpu' => 39.5,
+                'churnRate' => 2.3,
+            ],
+            'recentActivity' => [
+                [
+                    'id' => 1,
+                    'type' => 'user',
+                    'message' => 'New user "Acme Inc" signed up for Pro plan.',
+                    'created_at' => '2024-11-24T09:15:00Z',
+                ],
+                [
+                    'id' => 2,
+                    'type' => 'subscription',
+                    'message' => 'Subscription upgraded: "Contoso" from Basic to Pro.',
+                    'created_at' => '2024-11-24T08:30:00Z',
+                ],
+                [
+                    'id' => 3,
+                    'type' => 'support',
+                    'message' => 'New support ticket from "MarketingCo" about scan limits.',
+                    'created_at' => '2024-11-23T18:05:00Z',
+                ],
+            ],
+        ]);
+    })->name('admin.dashboard');
+
+    Route::get('/admin/users', function () {
+        // Mock admin user list
+        $users = [
+            [
+                'id' => 1,
+                'name' => 'Alice Admin',
+                'email' => 'alice@example.com',
+                'email_verified_at' => '2024-11-01 10:00:00',
+                'created_at' => '2024-10-15 09:00:00',
+                'updated_at' => '2024-11-23 14:00:00',
+                'role' => 'admin',
+                'status' => 'active',
+                'organization' => 'Platform Owners',
+                'plan' => 'Internal',
+                'last_seen_at' => '2024-11-24 08:45:00',
+            ],
+            [
+                'id' => 2,
+                'name' => 'Bob Editor',
+                'email' => 'bob@example.com',
+                'email_verified_at' => '2024-11-05 12:00:00',
+                'created_at' => '2024-11-05 11:00:00',
+                'updated_at' => '2024-11-23 12:30:00',
+                'role' => 'editor',
+                'status' => 'active',
+                'organization' => 'Acme Inc',
+                'plan' => 'Pro',
+                'last_seen_at' => '2024-11-24 07:10:00',
+            ],
+            [
+                'id' => 3,
+                'name' => 'Charlie Viewer',
+                'email' => 'charlie@example.com',
+                'email_verified_at' => null,
+                'created_at' => '2024-11-10 15:20:00',
+                'updated_at' => '2024-11-20 10:05:00',
+                'role' => 'viewer',
+                'status' => 'invited',
+                'organization' => 'Contoso',
+                'plan' => 'Free',
+                'last_seen_at' => null,
+            ],
+        ];
+
+        return Inertia::render('Admin/Users', [
+            'users' => $users,
+        ]);
+    })->name('admin.users');
+
     Route::get('/qr-codes/{id}/analytics', function (string $id) {
         // Mock QR-specific analytics data
         $qrcode = [

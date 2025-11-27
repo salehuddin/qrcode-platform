@@ -143,6 +143,19 @@ qrcode-platform/
 - **[PAGES_PLAN.md](PAGES_PLAN.md)** - Detailed pages structure and implementation plan
 - **API Documentation** - Coming soon with Laravel API resources
 
+## 🗒️ Updates (November 27, 2025)
+
+- Fixed TypeScript error on QR List page by replacing non-standard `onCheckedChange` with standard `onChange` in `resources/js/Pages/QRCode/Index.tsx`.
+- Moved the "Back to QR Codes" button into the main content area (top-left) on the Create page for consistent layout in `resources/js/Pages/QRCode/Create.tsx`.
+
+## ⏭️ Next steps
+
+- Implement permalink/short URL model for dynamic QR codes.
+- Add redirect endpoint `/r/{code}` with basic scan logging.
+- Persist `destination_url` separately from encoded content for dynamic QRs.
+- Lay the foundation for analytics (events, models, and basic dashboard widgets).
+- Add tests covering dynamic vs static flows and the create form.
+
 ## 🎯 Roadmap
 
 ### Phase 1: Foundation (Week 1-2) ✅

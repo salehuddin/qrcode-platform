@@ -1,4 +1,5 @@
 import { Label } from '@/Components/ui/label';
+import { Input } from '@/Components/ui/input';
 import { QRCustomization } from '@/types';
 
 interface ColorCustomizerProps {
@@ -22,19 +23,19 @@ export function ColorCustomizer({ customization, onChange }: ColorCustomizerProp
                     <div key={color.key} className="space-y-2">
                         <Label htmlFor={color.key}>{color.label}</Label>
                         <div className="flex items-center gap-3">
-                            <input
+                            <Input
                                 id={color.key}
                                 type="color"
                                 value={customization[color.key] || '#000000'}
                                 onChange={(e) => onChange(color.key, e.target.value)}
-                                className="h-10 w-16 rounded border border-input cursor-pointer"
+                                className="h-10 w-16 cursor-pointer p-1"
                             />
-                            <input
+                            <Input
                                 type="text"
                                 value={customization[color.key] || '#000000'}
                                 onChange={(e) => onChange(color.key, e.target.value)}
                                 placeholder="#000000"
-                                className="flex-1 h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
+                                className="flex-1"
                             />
                         </div>
                         <p className="text-xs text-muted-foreground">{color.description}</p>
@@ -63,38 +64,38 @@ export function ColorCustomizer({ customization, onChange }: ColorCustomizerProp
                             <div className="space-y-2">
                                 <Label htmlFor="gradientStartColor">Start Color</Label>
                                 <div className="flex items-center gap-3">
-                                    <input
+                                    <Input
                                         id="gradientStartColor"
                                         type="color"
                                         value={customization.gradientStartColor || customization.dotsColor || '#000000'}
                                         onChange={(e) => onChange('gradientStartColor', e.target.value)}
-                                        className="h-10 w-16 rounded border border-input cursor-pointer"
+                                        className="h-10 w-16 cursor-pointer p-1"
                                     />
-                                    <input
+                                    <Input
                                         type="text"
                                         value={customization.gradientStartColor || customization.dotsColor || '#000000'}
                                         onChange={(e) => onChange('gradientStartColor', e.target.value)}
                                         placeholder="#000000"
-                                        className="flex-1 h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
+                                        className="flex-1"
                                     />
                                 </div>
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="gradientEndColor">End Color</Label>
                                 <div className="flex items-center gap-3">
-                                    <input
+                                    <Input
                                         id="gradientEndColor"
                                         type="color"
                                         value={customization.gradientEndColor || customization.dotsColor || '#000000'}
                                         onChange={(e) => onChange('gradientEndColor', e.target.value)}
-                                        className="h-10 w-16 rounded border border-input cursor-pointer"
+                                        className="h-10 w-16 cursor-pointer p-1"
                                     />
-                                    <input
+                                    <Input
                                         type="text"
                                         value={customization.gradientEndColor || customization.dotsColor || '#000000'}
                                         onChange={(e) => onChange('gradientEndColor', e.target.value)}
                                         placeholder="#000000"
-                                        className="flex-1 h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
+                                        className="flex-1"
                                     />
                                 </div>
                             </div>
