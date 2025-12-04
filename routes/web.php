@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QRCodeController;
+use App\Http\Controllers\RedirectController;
+use App\Models\QrCode;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -14,6 +16,9 @@ Route::get('/', function () {
         'phpVersion' => PHP_VERSION,
     ]);
 });
+
+// Public redirect route for QR code permalinks
+Route::get('/r/{permalink}', [RedirectController::class, 'redirect'])->name('qr.redirect');
 
 Route::get('/dashboard', function () {
     // Mock dashboard data
@@ -226,123 +231,46 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ]);
     })->name('admin.users');
 
-    Route::get('/qr-codes/{id}/analytics', function (string $id) {
-        // Mock QR-specific analytics data
-        $qrcode = [
-            'id' => $id,
-            'name' => $id === '2' ? 'Fall Campaign' : 'Website Homepage',
-            'type' => 'url',
-            'content' => $id === '2' ? 'https://example.com/fall' : 'https://example.com',
-            'destination_url' => $id === '2' ? 'https://example.com/fall' : 'https://example.com',
-            'is_active' => true,
-            'scan_count' => $id === '2' ? 180 : 245,
-            'unique_scans' => $id === '2' ? 150 : 198,
-            'last_scanned_at' => '2024-11-23 14:30:00',
-            'created_at' => '2024-11-20 10:00:00',
-            'updated_at' => '2024-11-23 14:30:00',
-            'design' => [
-                'foreground_color' => '#000000',
-                'background_color' => '#FFFFFF',
-                'pattern' => $id === '2' ? 'dots' : 'square',
-                'error_correction' => $id === '2' ? 'Q' : 'M',
-            ],
-            'customization' => null,
-            'user_id' => 1,
-        ];
-
-        $scansOverTime = [
-            ['label' => 'Mon', 'value' => 25],
-            ['label' => 'Tue', 'value' => 30],
-            ['label' => 'Wed', 'value' => 40],
-            ['label' => 'Thu', 'value' => 35],
-            ['label' => 'Fri', 'value' => 50],
-            ['label' => 'Sat', 'value' => 60],
-            ['label' => 'Sun', 'value' => 30],
-        ];
-
-        $deviceBreakdown = [
-            ['label' => 'Mobile', 'value' => 160, 'percent' => 70],
-            ['label' => 'Desktop', 'value' => 50, 'percent' => 22],
-            ['label' => 'Tablet', 'value' => 20, 'percent' => 8],
-        ];
-
-        $locationBreakdown = [
-            ['label' => 'United States', 'value' => 140, 'percent' => 60],
-            ['label' => 'United Kingdom', 'value' => 40, 'percent' => 17],
-            ['label' => 'Canada', 'value' => 30, 'percent' => 13],
-            ['label' => 'Other', 'value' => 20, 'percent' => 10],
-        ];
-
-        $referrers = [
-            ['source' => 'Direct / QR', 'scans' => 180, 'percent' => 72],
-            ['source' => 'Website Landing Page', 'scans' => 50, 'percent' => 20],
-            ['source' => 'Social Campaign', 'scans' => 20, 'percent' => 8],
-        ];
-
-        $peakHours = [
-            ['label' => '09:00 - 12:00', 'value' => 60],
-            ['label' => '12:00 - 15:00', 'value' => 80],
-            ['label' => '15:00 - 18:00', 'value' => 55],
-            ['label' => '18:00 - 21:00', 'value' => 40],
-        ];
-
-        $recentScans = [
-            [
-                'id' => 'scan-1',
-                'qr_code_id' => $id,
-                'ip_address' => '192.168.1.10',
-                'user_agent' => 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)',
-                'device_type' => 'Mobile',
-                'browser' => 'Safari',
-                'os' => 'iOS',
-                'country' => 'United States',
-                'city' => 'New York',
-                'scanned_at' => '2024-11-23 14:30:00',
-            ],
-            [
-                'id' => 'scan-2',
-                'qr_code_id' => $id,
-                'ip_address' => '192.168.1.11',
-                'user_agent' => 'Mozilla/5.0 (Linux; Android 14)',
-                'device_type' => 'Mobile',
-                'browser' => 'Chrome',
-                'os' => 'Android',
-                'country' => 'United States',
-                'city' => 'San Francisco',
-                'scanned_at' => '2024-11-23 13:15:00',
-            ],
-            [
-                'id' => 'scan-3',
-                'qr_code_id' => $id,
-                'ip_address' => '192.168.1.12',
-                'user_agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-                'device_type' => 'Desktop',
-                'browser' => 'Edge',
-                'os' => 'Windows',
-                'country' => 'Canada',
-                'city' => 'Toronto',
-                'scanned_at' => '2024-11-22 18:45:00',
-            ],
-        ];
-
-        return Inertia::render('Analytics/QRCodeAnalytics', [
-            'qrcode' => $qrcode,
-            'scansOverTime' => $scansOverTime,
-            'deviceBreakdown' => $deviceBreakdown,
-            'locationBreakdown' => $locationBreakdown,
-            'referrers' => $referrers,
-            'peakHours' => $peakHours,
-            'recentScans' => $recentScans,
-        ]);
-    })->name('qr-codes.analytics');
+    Route::get('/qr-codes/{qrCode}/analytics', [QRCodeController::class, 'analytics'])->name('qr-codes.analytics');
 
     Route::resource('qr-codes', QRCodeController::class);
+
+    // Team Management Routes
+    Route::middleware(['org.context'])->group(function () {
+        Route::prefix('settings')->name('settings.')->group(function () {
+            Route::get('/organization', [App\Http\Controllers\OrganizationController::class, 'show'])->name('organization.show');
+            Route::put('/organization', [App\Http\Controllers\OrganizationController::class, 'update'])->name('organization.update');
+        });
+
+        Route::resource('folders', App\Http\Controllers\FolderController::class);
+        Route::put('/folders/{folder}/move', [App\Http\Controllers\FolderController::class, 'move'])->name('folders.move');
+
+        Route::resource('tags', App\Http\Controllers\TagController::class);
+        
+        // Bulk operations for QR codes (organization-scoped)
+        Route::post('/qr-codes/bulk-move', [QRCodeController::class, 'bulkMove'])->name('qr-codes.bulk-move');
+        Route::post('/qr-codes/bulk-tags', [QRCodeController::class, 'bulkUpdateTags'])->name('qr-codes.bulk-tags');
+
+        Route::post('/invitations', [App\Http\Controllers\InvitationController::class, 'store'])->name('invitations.store');
+        Route::delete('/invitations/{invitation}', [App\Http\Controllers\InvitationController::class, 'destroy'])->name('invitations.destroy');
+    });
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/invitations/{token}/accept', [App\Http\Controllers\InvitationController::class, 'accept'])->name('invitations.accept');
 });
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Team Management
+    Route::get('/team', [App\Http\Controllers\TeamController::class, 'index'])->name('team.index');
+    Route::post('/teams', [App\Http\Controllers\TeamController::class, 'store'])->name('teams.store');
+    Route::post('/team/members', [App\Http\Controllers\TeamMemberController::class, 'store'])->name('team.members.store');
+    Route::put('/team/members/{user}', [App\Http\Controllers\TeamMemberController::class, 'update'])->name('team.members.update');
+    Route::delete('/team/members/{user}', [App\Http\Controllers\TeamMemberController::class, 'destroy'])->name('team.members.destroy');
 });
 
 require __DIR__.'/auth.php';

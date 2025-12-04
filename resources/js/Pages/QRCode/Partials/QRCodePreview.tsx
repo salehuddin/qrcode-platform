@@ -6,9 +6,10 @@ import { Button } from '@/Components/ui/button';
 interface QRCodePreviewProps {
     data: string;
     customization: Partial<QRCustomization>;
+    showDownloadButtons?: boolean;
 }
 
-export function QRCodePreview({ data, customization }: QRCodePreviewProps) {
+export function QRCodePreview({ data, customization, showDownloadButtons = true }: QRCodePreviewProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const qrRef = useRef<QRCodeStyling | null>(null);
     const [isGenerating, setIsGenerating] = useState(false);
@@ -154,7 +155,7 @@ export function QRCodePreview({ data, customization }: QRCodePreviewProps) {
 
     return (
         <div className="space-y-4">
-            <div className="flex items-center justify-center p-6 bg-white rounded-lg border">
+            <div className="flex items-center justify-center bg-white rounded-lg border">
                 <div
                     ref={containerRef}
                     className="flex justify-center w-full max-w-[260px] mx-auto"
@@ -165,49 +166,51 @@ export function QRCodePreview({ data, customization }: QRCodePreviewProps) {
                 </div>
             </div>
 
-            <div className="space-y-2">
-                <p className="text-sm text-muted-foreground text-center">
-                    Download your QR code
-                </p>
-                <div className="grid grid-cols-2 gap-2">
+            {showDownloadButtons && (
+                <div className="space-y-2">
+                    <p className="text-sm text-muted-foreground text-center">
+                        Download your QR code
+                    </p>
+                    <div className="grid grid-cols-2 gap-2">
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => downloadQRCode('png')}
+                        >
+                            PNG
+                        </Button>
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => downloadQRCode('svg')}
+                        >
+                            SVG
+                        </Button>
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => downloadQRCode('jpeg')}
+                        >
+                            JPEG
+                        </Button>
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => downloadQRCode('webp')}
+                        >
+                            WebP
+                        </Button>
+                    </div>
                     <Button
                         size="sm"
-                        variant="outline"
-                        onClick={() => downloadQRCode('png')}
+                        variant="ghost"
+                        className="w-full text-xs"
+                        onClick={copyToClipboard}
                     >
-                        PNG
-                    </Button>
-                    <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => downloadQRCode('svg')}
-                    >
-                        SVG
-                    </Button>
-                    <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => downloadQRCode('jpeg')}
-                    >
-                        JPEG
-                    </Button>
-                    <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => downloadQRCode('webp')}
-                    >
-                        WebP
+                        Copy to Clipboard
                     </Button>
                 </div>
-                <Button
-                    size="sm"
-                    variant="ghost"
-                    className="w-full text-xs"
-                    onClick={copyToClipboard}
-                >
-                    Copy to Clipboard
-                </Button>
-            </div>
+            )}
         </div>
     );
 }

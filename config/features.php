@@ -6,8 +6,9 @@ return [
     | Application Edition
     |--------------------------------------------------------------------------
     |
-    | High-level edition switch. Use this to decide sensible defaults for
-    | feature flags. Valid values: 'internal', 'saas'.
+    | Determines which edition of the platform is running:
+    | - 'internal': Single-tenant for internal use
+    | - 'saas': Multi-tenant SaaS platform
     |
     */
 
@@ -15,19 +16,38 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Core Feature Flags
+    | Feature Flags
     |--------------------------------------------------------------------------
     |
-    | Each flag can be overridden via environment variables. If not explicitly
-    | set, we derive a default from the edition.
+    | These flags control which features are enabled based on the edition.
+    | If not explicitly set, defaults are derived from the edition.
     |
     */
 
+    // Multi-tenant support (SaaS only)
+    'multi_tenant' => env('FEATURE_MULTI_TENANT') ?? (env('APP_EDITION', 'internal') === 'saas'),
+    
+    // Billing and subscription management (SaaS only)
     'billing' => env('FEATURE_BILLING') ?? (env('APP_EDITION', 'internal') === 'saas'),
-
-    'team_management' => env('FEATURE_TEAM_MANAGEMENT') ?? (env('APP_EDITION', 'internal') === 'saas'),
-
+    
+    // Usage limits per plan (SaaS only)
+    'usage_limits' => env('FEATURE_USAGE_LIMITS') ?? (env('APP_EDITION', 'internal') === 'saas'),
+    
+    // Organization creation UI (SaaS only, internal has default org)
+    'organization_creation' => env('FEATURE_ORG_CREATION') ?? (env('APP_EDITION', 'internal') === 'saas'),
+    
+    // Team management (both editions)
+    'team_management' => env('FEATURE_TEAM_MANAGEMENT', true),
+    
+    // Client management (both editions)
+    'client_management' => env('FEATURE_CLIENT_MANAGEMENT', true),
+    
+    // Project management (both editions)
+    'project_management' => env('FEATURE_PROJECT_MANAGEMENT', true),
+    
+    // Marketing site (SaaS only)
     'marketing_site' => env('FEATURE_MARKETING_SITE') ?? (env('APP_EDITION', 'internal') === 'saas'),
-
+    
+    // API keys (SaaS only)
     'api_keys' => env('FEATURE_API_KEYS') ?? (env('APP_EDITION', 'internal') === 'saas'),
 ];

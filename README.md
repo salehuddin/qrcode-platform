@@ -11,51 +11,57 @@
 ## ✨ Features
 
 ### 🎨 Dynamic QR Code Management
-- **Editable Links**: Update destination URLs without changing QR codes
-- **Multiple QR Types**: URL, vCard, WiFi, SMS, Email, Phone, Location, Events
-- **Custom Styling**: Colors, patterns, gradients, and logo embedding
-- **Export Formats**: PNG, SVG, PDF, EPS with vector support
+
+-   **Editable Links**: Update destination URLs without changing QR codes
+-   **Multiple QR Types**: URL, vCard, WiFi, SMS, Email, Phone, Location, Events
+-   **Custom Styling**: Colors, patterns, gradients, and logo embedding
+-   **Export Formats**: PNG, SVG, PDF, EPS with vector support
 
 ### 📊 Analytics & Tracking
-- **Real-time Analytics**: Scan tracking with geographic data
-- **Device Insights**: Browser, OS, and device type detection
-- **Performance Metrics**: Unique vs total scans, engagement rates
-- **Google Analytics Integration**: Enhanced tracking capabilities
+
+-   **Real-time Analytics**: Scan tracking with geographic data
+-   **Device Insights**: Browser, OS, and device type detection
+-   **Performance Metrics**: Unique vs total scans, engagement rates
+-   **Google Analytics Integration**: Enhanced tracking capabilities
 
 ### 👥 Team Collaboration
-- **Role-Based Access**: Admin, Editor, Viewer permissions
-- **Multi-tenant Architecture**: Organization-based data isolation
-- **Team Management**: Invite members, manage permissions
-- **Brand Consistency**: Template locking and brand kits
 
-### 🔒 Enterprise & Editions
-- **Custom Domains**: Use your own branded short domains
-- **API Access**: Programmatic QR code generation and management
-- **Advanced Security**: Two-factor authentication, audit logs
-- **Subscription Management**: Multiple pricing tiers with usage limits
-- **Editions via Feature Flags**: `APP_EDITION` (`internal` or `saas`) and `FEATURE_*` flags control which capabilities (billing, team management, marketing pages) are enabled without forking the codebase.
+-   **Role-Based Access**: Admin, Editor, Viewer permissions
+-   **Multi-tenant Architecture**: Organization-based data isolation
+-   **Team Management**: Invite members, manage permissions
+-   **Brand Consistency**: Template locking and brand kits
+
+### 🔒 Enterprise Features
+
+-   **Custom Domains**: Use your own branded short domains
+-   **API Access**: Programmatic QR code generation and management
+-   **Advanced Security**: Two-factor authentication, audit logs
+-   **Subscription Management**: Multiple pricing tiers with usage limits
 
 ## 🚀 Tech Stack
 
 ### Backend
-- **Laravel 10+** - PHP web framework with Eloquent ORM
-- **Laravel Sanctum** - SPA authentication
-- **Laravel Queues** - Background job processing
-- **MySQL/PostgreSQL** - Primary database
-- **Redis** - Caching and session storage
+
+-   **Laravel 10+** - PHP web framework with Eloquent ORM
+-   **Laravel Sanctum** - SPA authentication
+-   **Laravel Queues** - Background job processing
+-   **MySQL/PostgreSQL** - Primary database
+-   **Redis** - Caching and session storage
 
 ### Frontend
-- **React 18** - Component-based UI framework
-- **TypeScript** - Type safety and better DX
-- **Inertia.js** - Server-side rendering with React
-- **Tailwind CSS** - Utility-first CSS framework
-- **Shadcn/ui** - Modern, accessible component library
-- **Vite** - Fast development build tool
+
+-   **React 18** - Component-based UI framework
+-   **TypeScript** - Type safety and better DX
+-   **Inertia.js** - Server-side rendering with React
+-   **Tailwind CSS** - Utility-first CSS framework
+-   **Shadcn/ui** - Modern, accessible component library
+-   **Vite** - Fast development build tool
 
 ### QR Code & Image Processing
-- **endroid/qr-code** - PHP QR code generation library
-- **Intervention Image** - Image manipulation for logos
-- **SVG Support** - Scalable vector graphics for print quality
+
+-   **endroid/qr-code** - PHP QR code generation library
+-   **Intervention Image** - Image manipulation for logos
+-   **SVG Support** - Scalable vector graphics for print quality
 
 ## 📋 Project Structure
 
@@ -80,54 +86,62 @@ qrcode-platform/
 ## 🛠️ Development Setup
 
 ### Prerequisites
-- **PHP 8.2+** with required extensions
-- **Composer** for PHP dependency management
-- **Node.js 18+** and npm for frontend assets
-- **MySQL/PostgreSQL** database
-- **Redis** (optional, for caching)
+
+-   **PHP 8.2+** with required extensions
+-   **Composer** for PHP dependency management
+-   **Node.js 18+** and npm for frontend assets
+-   **MySQL/PostgreSQL** database
+-   **Redis** (optional, for caching)
 
 ### Quick Start with Laragon (Windows)
 
 1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yourusername/qrcode-platform.git
-   cd qrcode-platform
-   ```
+
+    ```bash
+    git clone https://github.com/yourusername/qrcode-platform.git
+    cd qrcode-platform
+    ```
 
 2. **Install PHP dependencies**
-   ```bash
-   composer install
-   ```
+
+    ```bash
+    composer install
+    ```
 
 3. **Install Node.js dependencies**
-   ```bash
-   npm install --legacy-peer-deps
-   ```
+
+    ```bash
+    npm install --legacy-peer-deps
+    ```
 
 4. **Environment setup**
-   ```bash
-   cp .env.example .env
-   php artisan key:generate
-   ```
+
+    ```bash
+    cp .env.example .env
+    php artisan key:generate
+    ```
 
 5. **Configure database**
-   - Update `.env` with your database credentials
-   - Create database: `qrcode_platform`
+
+    - Update `.env` with your database credentials
+    - Create database: `qrcode_platform`
 
 6. **Run migrations**
-   ```bash
-   php artisan migrate
-   ```
+
+    ```bash
+    php artisan migrate
+    ```
 
 7. **Build frontend assets**
-   ```bash
-   npm run dev    # Development with hot reload
-   npm run build  # Production build
-   ```
+
+    ```bash
+    npm run dev    # Development with hot reload
+    npm run build  # Production build
+    ```
 
 8. **Start development server**
-   - With Laragon: Access `http://qrcode-platform.test`
-   - Without Laragon: `php artisan serve` → `http://localhost:8000`
+    - With Laragon: Access `http://qrcode-platform.test`
+    - Without Laragon: `php artisan serve` → `http://localhost:8000`
 
 ### Alternative Setup (Docker)
 
@@ -139,51 +153,40 @@ qrcode-platform/
 
 ## 📚 Documentation
 
-- **[PRD.md](PRD.md)** - Complete product requirements and technical specifications
-- **[PAGES_PLAN.md](PAGES_PLAN.md)** - Detailed pages structure and implementation plan
-- **API Documentation** - Coming soon with Laravel API resources
-
-## 🗒️ Updates (November 27, 2025)
-
-- Fixed TypeScript error on QR List page by replacing non-standard `onCheckedChange` with standard `onChange` in `resources/js/Pages/QRCode/Index.tsx`.
-- Moved the "Back to QR Codes" button into the main content area (top-left) on the Create page for consistent layout in `resources/js/Pages/QRCode/Create.tsx`.
-
-## ⏭️ Next steps
-
-- Implement permalink/short URL model for dynamic QR codes.
-- Add redirect endpoint `/r/{code}` with basic scan logging.
-- Persist `destination_url` separately from encoded content for dynamic QRs.
-- Lay the foundation for analytics (events, models, and basic dashboard widgets).
-- Add tests covering dynamic vs static flows and the create form.
+-   **[PRD.md](PRD.md)** - Complete product requirements and technical specifications
+-   **[PAGES_PLAN.md](PAGES_PLAN.md)** - Detailed pages structure and implementation plan
+-   **API Documentation** - Coming soon with Laravel API resources
 
 ## 🎯 Roadmap
 
 ### Phase 1: Foundation (Week 1-2) ✅
-- [x] Laravel + React + TypeScript setup
-- [x] Shadcn/ui integration
-- [x] Authentication system (Laravel Breeze)
-- [x] Basic project structure
-- [ ] Core page creation (Dashboard, QR List, Create QR)
 
-### Phase 2: Core Features (Week 3-4)
-- [ ] Dynamic vs static QR modes in Create flow (mode toggle, name/description fields)
-- [ ] URL shortening service & permalink model for dynamic QR codes
-- [ ] Redirect endpoint `/r/{code}` with basic scan logging
-- [ ] Store destination separately from encoded content for dynamic QR codes
-- [ ] Analytics foundation
+-   [x] Laravel + React + TypeScript setup
+-   [x] Shadcn/ui integration
+-   [x] Authentication system (Laravel Breeze)
+-   [x] Basic project structure
+-   [x] Core page creation (Dashboard, QR List, Create QR)
 
-### Phase 3: Advanced Features (Week 5-6)
-- [ ] Advanced design tools
-- [ ] Team management
-- [ ] Template system
-- [ ] Export functionality
+### Phase 2: Core Features (Week 3-4) ✅
 
-### Phase 4: Enterprise & Editions (Week 7-8)
-- [ ] Admin dashboard
-- [ ] Subscription system
-- [ ] API development
-- [ ] Introduce `APP_EDITION` and `FEATURE_*` flags to support internal vs SaaS deployments.
-- [ ] Performance optimization
+-   [x] QR code generation engine
+-   [x] Advanced customization (colors, logos, gradients, patterns)
+-   [x] URL shortening service (Dynamic QRs)
+-   [x] Analytics foundation (Mock data & Routes)
+
+### Phase 3: Advanced Features (Week 5-6) 🚧
+
+-   [ ] Advanced design tools (Design Studio)
+-   [/] Team management (Organizations, Invitations, Roles)
+-   [ ] Template system
+-   [ ] Export functionality (Vector formats)
+
+### Phase 4: Enterprise & Polish (Week 7-8)
+
+-   [ ] Admin dashboard
+-   [ ] Subscription system
+-   [ ] API development
+-   [ ] Performance optimization
 
 ## 🤝 Contributing
 
@@ -194,11 +197,12 @@ qrcode-platform/
 5. Open a Pull Request
 
 ### Development Guidelines
-- Follow PSR-12 coding standards for PHP
-- Use TypeScript for all React components
-- Follow conventional commits for commit messages
-- Write tests for new features
-- Update documentation for API changes
+
+-   Follow PSR-12 coding standards for PHP
+-   Use TypeScript for all React components
+-   Follow conventional commits for commit messages
+-   Write tests for new features
+-   Update documentation for API changes
 
 ## 📝 License
 
@@ -206,11 +210,11 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- **Laravel** - The PHP framework for web artisans
-- **React** - A JavaScript library for building user interfaces
-- **Shadcn/ui** - Beautifully designed components
-- **Tailwind CSS** - A utility-first CSS framework
-- **endroid/qr-code** - QR code generation for PHP
+-   **Laravel** - The PHP framework for web artisans
+-   **React** - A JavaScript library for building user interfaces
+-   **Shadcn/ui** - Beautifully designed components
+-   **Tailwind CSS** - A utility-first CSS framework
+-   **endroid/qr-code** - QR code generation for PHP
 
 ---
 

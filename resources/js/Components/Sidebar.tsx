@@ -42,9 +42,15 @@ export function Sidebar() {
             isActive: currentRoute === 'analytics',
         },
         {
-            label: 'Admin',
+            label: 'Organization',
             icon: <Users className="h-4 w-4" />,
             children: [
+                {
+                    label: 'Settings',
+                    href: route('settings.organization.show'),
+                    icon: <Settings className="h-4 w-4" />,
+                    isActive: currentRoute === 'settings.organization.show',
+                },
                 {
                     label: 'Dashboard',
                     href: route('admin.dashboard'),

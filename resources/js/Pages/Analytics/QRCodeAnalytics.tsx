@@ -47,24 +47,24 @@ export default function QRCodeAnalytics({
     return (
         <AuthenticatedLayout
             header={
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h2 className="text-xl font-semibold leading-tight text-gray-800">
+                <div>
+                    <div className="flex items-center gap-2">
+                        <h2 className="text-xl font-semibold leading-tight text-foreground">
                             Analytics for {qrcode.name}
                         </h2>
-                        <p className="mt-1 text-sm text-gray-600">
-                            Detailed scan analytics for this QR code
-                        </p>
-                    </div>
-                    <div className="flex items-center gap-2">
                         <Badge variant={qrcode.is_active ? 'default' : 'secondary'}>
                             {qrcode.is_active ? 'Active' : 'Inactive'}
                         </Badge>
-                        <Button variant="outline" asChild>
-                            <Link href={`/qr-codes/${qrcode.id}`}>
-                                View QR Details
-                            </Link>
-                        </Button>
+                    </div>
+                    <div className="mt-1 space-y-1">
+                        <p className="text-sm text-gray-600">
+                            Detailed scan analytics for this QR code
+                        </p>
+                        {qrcode.mode === 'dynamic' && qrcode.permalink && (
+                            <p className="text-xs font-mono text-gray-500">
+                                {qrcode.permalink}
+                            </p>
+                        )}
                     </div>
                 </div>
             }
@@ -73,6 +73,20 @@ export default function QRCodeAnalytics({
 
             <div className="py-12">
                 <div className="mx-auto max-w-7xl space-y-8 sm:px-6 lg:px-8">
+                    {/* Top Actions */}
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <Button variant="outline" size="sm" asChild>
+                                <Link href={`/qr-codes/${qrcode.id}`}>
+                                    View QR Details
+                                </Link>
+                            </Button>
+                        </div>
+                        <Button variant="outline" size="sm">
+                            Export CSV
+                        </Button>
+                    </div>
+                    
                     {/* Summary cards */}
                     <div className="grid gap-4 md:grid-cols-3">
                         <Card>
@@ -312,13 +326,6 @@ export default function QRCodeAnalytics({
                             )}
                         </CardContent>
                     </Card>
-
-                    {/* Export action */}
-                    <div className="flex justify-end">
-                        <Button variant="outline" size="sm" asChild>
-                            <Link href="#">Export CSV (mock)</Link>
-                        </Button>
-                    </div>
                 </div>
             </div>
         </AuthenticatedLayout>

@@ -2,200 +2,218 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\QrCode;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
-class QRCodeController extends Controller
+class QrCodeController extends Controller
 {
-    public function index()
-    {
-        // Static mock data so we can test views & flow without a database table yet
-        $qrCodes = [
-            [
-                'id' => '1',
-                'name' => 'Website Homepage',
-                'type' => 'url',
-                'content' => 'https://example.com',
-                'destination_url' => 'https://example.com',
-                'is_active' => true,
-                'scan_count' => 245,
-                'unique_scans' => 198,
-                'last_scanned_at' => '2024-11-23 14:30:00',
-                'created_at' => '2024-11-20 10:00:00',
-                'updated_at' => '2024-11-23 14:30:00',
-                'design' => [
-                    'foreground_color' => '#000000',
-                    'background_color' => '#FFFFFF',
-                    'pattern' => 'square',
-                    'error_correction' => 'M',
-                ],
-                'user_id' => 1,
-            ],
-            [
-                'id' => '2',
-                'name' => 'WiFi Access',
-                'type' => 'wifi',
-                'content' => 'WIFI:T:WPA;S:MyNetwork;P:password;;',
-                'destination_url' => null,
-                'is_active' => true,
-                'scan_count' => 56,
-                'unique_scans' => 42,
-                'last_scanned_at' => '2024-11-22 18:15:00',
-                'created_at' => '2024-11-21 09:30:00',
-                'updated_at' => '2024-11-22 18:15:00',
-                'design' => [
-                    'foreground_color' => '#000000',
-                    'background_color' => '#FFFFFF',
-                    'pattern' => 'dots',
-                    'error_correction' => 'Q',
-                ],
-                'user_id' => 1,
-            ],
-        ];
+    public function __construct(
+        protected \App\Services\FolderService $folderService,
+        protected \App\Services\TagService $tagService
+    ) {}
 
-        $stats = [
-            'total_qr_codes' => count($qrCodes),
-            'active_qr_codes' => count(array_filter($qrCodes, fn ($qr) => $qr['is_active'])),
-            'total_scans' => array_sum(array_column($qrCodes, 'scan_count')),
-            'scans_this_month' => 0,
-            'top_performing_codes' => $qrCodes,
-            'recent_scans' => [],
-        ];
+    public function index(Request $request)
+    {
+        $query = Auth::user()->qrCodes()->with(['folder', 'tags'])->latest();
+
+        if ($request->has('folder_id')) {
+            $query->where('folder_id', $request->folder_id);
+        }
+
+        if ($request->has('tag_id')) {
+            $query->whereHas('tags', function ($q) use ($request) {
+                $q->where('tags.id', $request->tag_id);
+            });
+        }
+
+        $qrCodes = $query->get();
+        $organization = Auth::user()->currentOrganization();
 
         return Inertia::render('QRCode/Index', [
             'qrCodes' => $qrCodes,
-            'stats' => $stats,
+            'folders' => $organization ? $this->folderService->getFolderTree($organization) : [],
+            'tags' => $organization ? $this->tagService->getTags($organization) : [],
+            'filters' => $request->only(['folder_id', 'tag_id']),
         ]);
     }
 
     public function create()
     {
-        return Inertia::render('QRCode/Create');
+        $organization = Auth::user()->currentOrganization();
+
+        return Inertia::render('QRCode/Create', [
+            'folders' => $organization ? $this->folderService->getFolderTree($organization) : [],
+            'tags' => $organization ? $this->tagService->getTags($organization) : [],
+        ]);
     }
 
     public function store(Request $request)
     {
-        // Validate the payload but do not persist yet; we just feed it into the Show view
         $validated = $request->validate([
-            'name' => ['nullable', 'string', 'max:255'],
-            'description' => ['nullable', 'string', 'max:1000'],
-            'mode' => ['required', 'string', 'in:static,dynamic'],
-            'type' => ['required', 'string', 'max:50'],
-            'content' => ['required', 'string'],
-            'permalink' => ['nullable', 'string', 'max:255'],
-            'destination_url' => ['nullable', 'url', 'max:2048'],
-            'is_active' => ['sometimes', 'boolean'],
-            'design' => ['nullable', 'array'],
-            'customization' => ['nullable', 'array'],
+            'name' => 'nullable|string|max:255',
+            'description' => 'nullable|string|max:1000',
+            'type' => 'required|string',
+            'mode' => 'required|in:static,dynamic',
+            'content' => 'required|string',
+            'permalink' => 'nullable|string|unique:qr_codes,permalink',
+            'destination_url' => 'nullable|url',
+            'design' => 'nullable|array',
+            'customization' => 'nullable|array',
+            'folder_id' => 'nullable|exists:folders,id',
+            'tags' => 'nullable|array',
+            'tags.*' => 'exists:tags,id',
         ]);
 
-        $now = now()->toDateTimeString();
+        $organization = Auth::user()->currentOrganization();
+        
+        // Add organization_id to creation data
+        $data = $validated;
+        $data['organization_id'] = $organization ? $organization->id : null; // Should handle no org case if needed
 
-        $design = $validated['design'] ?? [
-            'foreground_color' => '#000000',
-            'background_color' => '#FFFFFF',
-            'pattern' => 'square',
-            'error_correction' => 'M',
-        ];
+        $qrCode = Auth::user()->qrCodes()->create($data);
 
-        $qrCode = [
-            'id' => 'preview',
-            'name' => $validated['name'] ?? 'Preview QR Code',
-            'description' => $validated['description'] ?? null,
-            'mode' => $validated['mode'],
-            'permalink' => $validated['permalink'] ?? null,
-            'type' => $validated['type'],
-            'content' => $validated['content'],
-            'destination_url' => $validated['destination_url'] ?? null,
-            'is_active' => $validated['is_active'] ?? true,
-            'scan_count' => 0,
-            'unique_scans' => 0,
-            'last_scanned_at' => null,
-            'created_at' => $now,
-            'updated_at' => $now,
-            'design' => $design,
-            'customization' => $validated['customization'] ?? null,
-            'user_id' => $request->user()->id,
-        ];
+        if (isset($validated['tags'])) {
+            $qrCode->tags()->sync($validated['tags']);
+        }
+
+        return redirect()->route('qr-codes.show', $qrCode->id);
+    }
+
+    public function show(QrCode $qrCode)
+    {
+        // Ensure user owns the QR code (or has permission via org)
+        // For now, simple ownership check, but should use Policy
+        if ($qrCode->user_id !== Auth::id()) {
+             // Check org permission if needed
+             // Gate::authorize('view', $qrCode);
+        }
+
+        $qrCode->load(['folder', 'tags']);
 
         return Inertia::render('QRCode/Show', [
-            'qrcode' => $qrCode,
+            'qrCode' => $qrCode
         ]);
     }
 
-    public function show($id)
+    public function edit(QrCode $qrCode)
     {
-        // Static example for direct /qr-codes/{id} navigation
-        $qrCode = [
-            'id' => (string) $id,
-            'name' => 'Website Homepage',
-            'type' => 'url',
-            'content' => 'https://example.com',
-            'destination_url' => 'https://example.com',
-            'is_active' => true,
-            'scan_count' => 245,
-            'unique_scans' => 198,
-            'last_scanned_at' => '2024-11-23 14:30:00',
-            'created_at' => '2024-11-20 10:00:00',
-            'updated_at' => '2024-11-23 14:30:00',
-            'design' => [
-                'foreground_color' => '#000000',
-                'background_color' => '#FFFFFF',
-                'pattern' => 'square',
-                'error_correction' => 'M',
-            ],
-            'customization' => null,
-            'user_id' => 1,
-        ];
+        if ($qrCode->user_id !== Auth::id()) {
+            abort(403);
+        }
 
-        return Inertia::render('QRCode/Show', [
-            'qrcode' => $qrCode,
+        $organization = Auth::user()->currentOrganization();
+        $qrCode->load(['tags']);
+
+        return Inertia::render('QRCode/Edit', [
+            'qrCode' => $qrCode,
+            'folders' => $organization ? $this->folderService->getFolderTree($organization) : [],
+            'tags' => $organization ? $this->tagService->getTags($organization) : [],
         ]);
     }
 
-    public function edit($id)
+    public function update(Request $request, QrCode $qrCode)
     {
-        // Static example QR for editing; no persistence yet
-        $qrCode = [
-            'id' => (string) $id,
-            'name' => 'Website Homepage',
-            'type' => 'url',
-            'content' => 'https://example.com',
-            'destination_url' => 'https://example.com',
-            'is_active' => true,
-            'scan_count' => 245,
-            'unique_scans' => 198,
-            'last_scanned_at' => '2024-11-23 14:30:00',
-            'created_at' => '2024-11-20 10:00:00',
-            'updated_at' => '2024-11-23 14:30:00',
-            'design' => [
-                'foreground_color' => '#000000',
-                'background_color' => '#FFFFFF',
-                'pattern' => 'square',
-                'error_correction' => 'M',
-            ],
-            'customization' => null,
-            'user_id' => 1,
-        ];
+        if ($qrCode->user_id !== Auth::id()) {
+            abort(403);
+        }
 
-        return Inertia::render('QRCode/Create', [
+        $validated = $request->validate([
+            'name' => 'nullable|string|max:255',
+            'description' => 'nullable|string|max:1000',
+            'destination_url' => 'nullable|url',
+            'design' => 'nullable|array',
+            'customization' => 'nullable|array',
+            'folder_id' => 'nullable|exists:folders,id',
+            'tags' => 'nullable|array',
+            'tags.*' => 'exists:tags,id',
+        ]);
+
+        $qrCode->update($validated);
+
+        if (isset($validated['tags'])) {
+            $qrCode->tags()->sync($validated['tags']);
+        }
+
+        return redirect()->route('qr-codes.show', $qrCode->id);
+    }
+
+    public function destroy(QrCode $qrCode)
+    {
+        if ($qrCode->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $qrCode->delete();
+
+        return redirect()->route('qr-codes.index');
+    }
+
+    /**
+     * Show analytics for a specific QR code.
+     */
+    public function analytics(QrCode $qrCode)
+    {
+        if ($qrCode->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $analyticsService = new \App\Services\AnalyticsService();
+
+        return Inertia::render('Analytics/QRCodeAnalytics', [
             'qrcode' => $qrCode,
+            'scansOverTime' => $analyticsService->getScansOverTime($qrCode),
+            'deviceBreakdown' => $analyticsService->getDeviceBreakdown($qrCode),
+            'locationBreakdown' => $analyticsService->getLocationBreakdown($qrCode),
+            'referrers' => $analyticsService->getReferrers($qrCode),
+            'peakHours' => $analyticsService->getPeakHours($qrCode),
+            'recentScans' => $analyticsService->getRecentScans($qrCode),
         ]);
     }
 
-    public function update(Request $request, $id)
+    /**
+     * Bulk move QR codes to a folder.
+     */
+    public function bulkMove(Request $request)
     {
-        // No-op update while we are still mocking data
-        return redirect()
-            ->route('qr-codes.show', $id)
-            ->with('success', 'QR Code updated successfully (mock).');
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'required', // Allow string or integer
+            'folder_id' => 'nullable|exists:folders,id',
+        ]);
+
+        $qrCodes = QrCode::whereIn('id', $request->ids)
+            ->where('user_id', Auth::id())
+            ->get();
+
+        foreach ($qrCodes as $qrCode) {
+            $qrCode->update(['folder_id' => $request->folder_id]);
+        }
+
+        return redirect()->back()->with('success', 'QR codes moved successfully.');
     }
 
-    public function destroy(Request $request, $id)
+    /**
+     * Bulk update tags for QR codes.
+     */
+    public function bulkUpdateTags(Request $request)
     {
-        // No-op delete while using mock data
-        return redirect()
-            ->route('qr-codes.index')
-            ->with('success', 'QR Code deleted successfully (mock).');
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'required', // Allow string or integer
+            'tag_ids' => 'required|array',
+            'tag_ids.*' => 'required|integer|exists:tags,id',
+        ]);
+
+        $qrCodes = QrCode::whereIn('id', $request->ids)
+            ->where('user_id', Auth::id())
+            ->get();
+
+        foreach ($qrCodes as $qrCode) {
+            $qrCode->tags()->sync($request->tag_ids);
+        }
+
+        return redirect()->back()->with('success', 'Tags updated successfully.');
     }
 }

@@ -54,7 +54,7 @@ export default function AdminDashboard({
             header={
                 <div className="flex items-center justify-between">
                     <div>
-                        <h2 className="text-xl font-semibold leading-tight text-gray-800">Admin Dashboard</h2>
+                        <h2 className="text-xl font-semibold leading-tight text-foreground">Admin Dashboard</h2>
                         <p className="mt-1 text-sm text-gray-600">
                             Platform-wide overview for administrators
                         </p>

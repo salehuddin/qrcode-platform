@@ -1,6 +1,6 @@
-import { Link, usePage } from '@inertiajs/react';
+import { usePage } from '@inertiajs/react';
 import { PropsWithChildren, ReactNode } from 'react';
-import { Sidebar } from '@/Components/Sidebar';
+import { AppSidebar } from '@/Components/AppSidebar';
 
 export default function Authenticated({
     header,
@@ -9,26 +9,23 @@ export default function Authenticated({
     const user = usePage().props.auth.user;
 
     return (
-        <div className="flex h-screen bg-gray-100">
+        <div className="flex h-screen bg-background">
             {/* Sidebar */}
-            <Sidebar />
+            <AppSidebar user={user} />
 
             {/* Main content area */}
             <div className="flex-1 flex flex-col overflow-hidden">
-                {/* Top header with user info */}
-                <header className="bg-white border-b border-gray-200">
-                    <div className="px-6 py-4 flex items-center justify-between">
-                        <div>
+                {/* Top header */}
+                {header && (
+                    <header className="bg-card border-b">
+                        <div className="px-6 py-4">
                             {header}
                         </div>
-                        <div className="text-sm text-gray-600">
-                            {user.name}
-                        </div>
-                    </div>
-                </header>
+                    </header>
+                )}
 
                 {/* Page content */}
-                <main className="flex-1 overflow-auto bg-gray-50">
+                <main className="flex-1 overflow-auto">
                     {children}
                 </main>
             </div>

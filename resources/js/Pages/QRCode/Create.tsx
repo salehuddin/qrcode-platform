@@ -18,6 +18,7 @@ import { LocationForm } from './Partials/LocationForm';
 import { EventForm } from './Partials/EventForm';
 import { CustomizeForm } from './Partials/CustomizeForm';
 import { QRCodePreview } from './Partials/QRCodePreview';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
 
 const qrTypes: Array<{
     type: QRCodeType;
@@ -78,11 +79,32 @@ const qrTypes: Array<{
     }
 ];
 
-export default function CreateQRCode({}: PageProps) {
+interface Folder {
+    id: number;
+    name: string;
+    children: Folder[];
+    parent_id?: number | null;
+}
+
+interface Tag {
+    id: number;
+    name: string;
+    color: string | null;
+}
+
+interface Props extends PageProps {
+    folders: Folder[];
+    tags: Tag[];
+}
+
+export default function CreateQRCode({ folders, tags }: Props) {
     const [selectedType, setSelectedType] = useState<QRCodeType | null>(null);
     const [mode, setMode] = useState<QRCodeMode>('dynamic');
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
+    const [permalinkSlug, setPermalinkSlug] = useState('');
+    const [selectedFolderId, setSelectedFolderId] = useState<string>('none');
+    const [selectedTagIds, setSelectedTagIds] = useState<number[]>([]);
     const [qrData, setQrData] = useState<any>({});
     const [customization, setCustomization] = useState<Partial<QRCustomization>>({
         dotsColor: '#000000',
@@ -102,6 +124,27 @@ export default function CreateQRCode({}: PageProps) {
         errorCorrectionLevel: 'M',
         imageSize: 0.2,
     });
+
+    // Flatten folders for select
+    const flattenFolders = (nodes: Folder[], depth = 0): Array<{ id: number; name: string; depth: number }> => {
+        return nodes.reduce((acc, node) => {
+            acc.push({ id: node.id, name: node.name, depth });
+            if (node.children) {
+                acc.push(...flattenFolders(node.children, depth + 1));
+            }
+            return acc;
+        }, [] as Array<{ id: number; name: string; depth: number }>);
+    };
+
+    const flatFolders = useMemo(() => flattenFolders(folders || []), [folders]);
+
+    const toggleTag = (tagId: number) => {
+        setSelectedTagIds(prev => 
+            prev.includes(tagId) 
+                ? prev.filter(id => id !== tagId)
+                : [...prev, tagId]
+        );
+    };
 
     const handleTypeSelect = (type: QRCodeType) => {
         setSelectedType(type);
@@ -193,17 +236,18 @@ export default function CreateQRCode({}: PageProps) {
         if (mode !== 'dynamic') return '';
 
         const baseUrl = 'https://example.test';
-        const slugBase = name
-            ? name
-                  .trim()
-                  .toLowerCase()
-                  .replace(/[^a-z0-9]+/g, '-')
-                  .replace(/^-+|-+$/g, '')
-            : 'new-qr';
+        const slug = permalinkSlug || (
+            name
+                ? name
+                    .trim()
+                    .toLowerCase()
+                    .replace(/[^a-z0-9]+/g, '-')
+                    .replace(/^-+|-+$/g, '')
+                : 'new-qr'
+        );
 
-        const shortCode = `demo-${slugBase}`;
-        return `${baseUrl}/r/${shortCode}`;
-    }, [mode, name]);
+        return `${baseUrl}/r/${slug}`;
+    }, [mode, name, permalinkSlug]);
 
     const qrContent = useMemo(() => {
         if (!selectedType) return '';
@@ -268,6 +312,8 @@ export default function CreateQRCode({}: PageProps) {
             destination_url: destinationUrl,
             design,
             customization,
+            folder_id: selectedFolderId === 'none' ? null : selectedFolderId,
+            tags: selectedTagIds,
         });
     };
 
@@ -275,7 +321,7 @@ export default function CreateQRCode({}: PageProps) {
         <AuthenticatedLayout
             header={
                 <div>
-                    <h2 className="text-xl font-semibold leading-tight text-gray-800">
+                    <h2 className="text-xl font-semibold leading-tight text-foreground">
                         Create QR Code
                     </h2>
                     <p className="text-sm text-gray-600 mt-1">
@@ -350,6 +396,43 @@ export default function CreateQRCode({}: PageProps) {
                                                     rows={3}
                                                 />
                                             </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor="folder">Folder</Label>
+                                                <Select value={selectedFolderId} onValueChange={setSelectedFolderId}>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Select a folder" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="none">No Folder</SelectItem>
+                                                        {flatFolders.map((folder) => (
+                                                            <SelectItem key={folder.id} value={folder.id.toString()}>
+                                                                <span style={{ paddingLeft: `${folder.depth * 10}px` }}>
+                                                                    {folder.name}
+                                                                </span>
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label>Tags</Label>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {tags.map((tag) => (
+                                                        <Badge
+                                                            key={tag.id}
+                                                            variant={selectedTagIds.includes(tag.id) ? "default" : "outline"}
+                                                            className="cursor-pointer"
+                                                            onClick={() => toggleTag(tag.id)}
+                                                            style={selectedTagIds.includes(tag.id) && tag.color ? { backgroundColor: tag.color, borderColor: tag.color } : {}}
+                                                        >
+                                                            {tag.name}
+                                                        </Badge>
+                                                    ))}
+                                                    {tags.length === 0 && (
+                                                        <span className="text-sm text-muted-foreground">No tags available.</span>
+                                                    )}
+                                                </div>
+                                            </div>
                                         </div>
                                         <div className="space-y-3">
                                             <div className="space-y-2">
@@ -383,11 +466,27 @@ export default function CreateQRCode({}: PageProps) {
                                                 </p>
                                             </div>
                                             {mode === 'dynamic' && (
-                                                <div className="space-y-1">
-                                                    <Label>Permalink (preview)</Label>
-                                                    <div className="rounded border bg-muted px-2 py-1 text-xs font-mono break-all">
-                                                        {permalink || 'https://example.test/r/demo-new-qr'}
+                                                <div className="space-y-2">
+                                                    <Label htmlFor="permalink-slug">Custom Permalink</Label>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-xs text-muted-foreground whitespace-nowrap">https://example.test/r/</span>
+                                                        <Input
+                                                            id="permalink-slug"
+                                                            placeholder={name ? name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') : 'new-qr'}
+                                                            value={permalinkSlug}
+                                                            onChange={(e) => {
+                                                                const value = e.target.value
+                                                                    .toLowerCase()
+                                                                    .replace(/[^a-z0-9-]/g, '')
+                                                                    .replace(/^-+|-+$/g, '');
+                                                                setPermalinkSlug(value);
+                                                            }}
+                                                            className="text-xs font-mono"
+                                                        />
                                                     </div>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        Leave empty to auto-generate from QR name
+                                                    </p>
                                                 </div>
                                             )}
                                         </div>

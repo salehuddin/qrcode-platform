@@ -23,7 +23,7 @@ export default function AdminUsers({ users }: AdminUsersProps) {
         <AuthenticatedLayout
             header={
                 <div>
-                    <h2 className="text-xl font-semibold leading-tight text-gray-800">
+                    <h2 className="text-xl font-semibold leading-tight text-foreground">
                         User Management
                     </h2>
                     <p className="mt-1 text-sm text-gray-600">

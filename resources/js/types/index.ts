@@ -9,6 +9,23 @@ export interface User {
 
 export type QRCodeMode = 'static' | 'dynamic';
 
+export interface Tag {
+    id: number;
+    name: string;
+    color: string;
+    organization_id: number;
+}
+
+export interface Folder {
+    id: number;
+    name: string;
+    parent_id?: number | null;
+    organization_id: number;
+    children?: Folder[];
+    depth?: number;
+    color?: string;
+}
+
 export interface QRCode {
     id: string;
     name: string;
@@ -27,6 +44,9 @@ export interface QRCode {
     design: QRCodeDesign;
     customization?: QRCustomization;
     user_id: number;
+    folder_id?: number | null;
+    folder?: Folder;
+    tags?: Tag[];
 }
 
 export type QRCodeType = 
