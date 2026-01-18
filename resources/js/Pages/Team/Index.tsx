@@ -37,6 +37,7 @@ interface User {
     name: string;
     email: string;
     profile_photo_url?: string;
+    qr_codes_count: number;
     pivot: {
         role: string;
         joined_at: string;
@@ -103,7 +104,6 @@ export default function TeamIndex({ auth, organization, members, teams }: TeamDa
                         <TabsList>
                             <TabsTrigger value="members">Members</TabsTrigger>
                             <TabsTrigger value="teams">Teams</TabsTrigger>
-                            <TabsTrigger value="settings">Settings</TabsTrigger>
                         </TabsList>
 
                         <TabsContent value="members" className="space-y-4">
@@ -120,6 +120,7 @@ export default function TeamIndex({ auth, organization, members, teams }: TeamDa
                                             <TableRow>
                                                 <TableHead>User</TableHead>
                                                 <TableHead>Role</TableHead>
+                                                <TableHead>QR Codes</TableHead>
                                                 <TableHead>Joined</TableHead>
                                                 <TableHead className="text-right">Actions</TableHead>
                                             </TableRow>
@@ -133,7 +134,9 @@ export default function TeamIndex({ auth, organization, members, teams }: TeamDa
                                                             <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
                                                         </Avatar>
                                                         <div>
-                                                            <div className="font-medium">{member.name}</div>
+                                                            <div className="font-medium text-foreground hover:underline cursor-pointer">
+                                                                <a href={route('team.show', member.id)}>{member.name}</a>
+                                                            </div>
                                                             <div className="text-sm text-muted-foreground">{member.email}</div>
                                                         </div>
                                                     </TableCell>
@@ -141,6 +144,9 @@ export default function TeamIndex({ auth, organization, members, teams }: TeamDa
                                                         <Badge variant={getRoleBadgeVariant(member.pivot.role) as any}>
                                                             {member.pivot.role}
                                                         </Badge>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {member.qr_codes_count}
                                                     </TableCell>
                                                     <TableCell>
                                                         {new Date(member.pivot.joined_at).toLocaleDateString()}
@@ -196,20 +202,6 @@ export default function TeamIndex({ auth, organization, members, teams }: TeamDa
                                     </Card>
                                 ))}
                             </div>
-                        </TabsContent>
-
-                        <TabsContent value="settings">
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>Organization Settings</CardTitle>
-                                    <CardDescription>
-                                        Manage your organization profile and preferences.
-                                    </CardDescription>
-                                </CardHeader>
-                                <CardContent>
-                                    <p className="text-sm text-muted-foreground">Settings content coming soon...</p>
-                                </CardContent>
-                            </Card>
                         </TabsContent>
                     </Tabs>
                 </div>

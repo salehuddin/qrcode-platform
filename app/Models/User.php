@@ -7,10 +7,21 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
+
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, LogsActivity;
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+        ->logOnly(['name', 'email'])
+        ->logOnlyDirty()
+        ->dontSubmitEmptyLogs();
+    }
 
     /**
      * The attributes that are mass assignable.
@@ -95,12 +106,29 @@ class User extends Authenticatable
     /**
      * Check if user can manage QR codes in an organization.
      */
-    public function canManageQrCodes(Organization $org)
+    /**
+     * Check if user can view all QR codes in an organization.
+     * Admins, Owners, and Editors can view all.
+     */
+    public function canViewAllQrCodes(Organization $org)
     {
         $role = $this->organizations()
             ->wherePivot('organization_id', $org->id)
             ->first()?->pivot->role;
 
         return in_array($role, ['owner', 'admin', 'editor']);
+    }
+
+    /**
+     * Check if user can edit ALL QR codes in an organization.
+     * Only Admins and Owners can edit all.
+     */
+    public function canEditAllQrCodes(Organization $org)
+    {
+        $role = $this->organizations()
+            ->wherePivot('organization_id', $org->id)
+            ->first()?->pivot->role;
+
+        return in_array($role, ['owner', 'admin']);
     }
 }

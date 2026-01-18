@@ -42,15 +42,21 @@ class OrganizationController extends Controller
 
         Gate::authorize('update', $organization);
 
-        $validated = $request->validate([
+        $data = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'nullable|email|max:255',
             'phone' => 'nullable|string|max:20',
             'website' => 'nullable|url|max:255',
             'description' => 'nullable|string|max:1000',
+            'logo' => 'nullable|image|max:1024', // Max 1MB
         ]);
 
-        $this->organizationService->updateOrganization($organization, $validated);
+        if ($request->hasFile('logo')) {
+            $path = $request->file('logo')->store('organizations/logos', 'public');
+            $data['logo_url'] = '/storage/' . $path;
+        }
+
+        $this->organizationService->updateOrganization($organization, $data);
 
         return back()->with('success', 'Organization updated successfully.');
     }

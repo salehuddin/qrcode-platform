@@ -25,13 +25,17 @@ class TeamController extends Controller
         // For MVP, allow all members to view, but maybe restrict actions
         
         $members = $organization->users()
+            ->withCount(['qrCodes' => function ($query) use ($organization) {
+                $query->where('organization_id', $organization->id);
+            }])
             ->get()
             ->map(function ($member) {
                 return [
                     'id' => $member->id,
                     'name' => $member->name,
                     'email' => $member->email,
-                    'profile_photo_url' => $member->profile_photo_url, // Assuming this accessor exists or is null
+                    'profile_photo_url' => $member->profile_photo_url,
+                    'qr_codes_count' => $member->qr_codes_count,
                     'pivot' => [
                         'role' => $member->pivot->role,
                         'joined_at' => $member->pivot->joined_at,
@@ -94,5 +98,40 @@ class TeamController extends Controller
     public function destroy(Team $team)
     {
         // TODO: Implement destroy logic
+    }
+
+    /**
+     * Display the specified user's details and activity.
+     */
+    public function show(Request $request, $userId)
+    {
+        $organization = $request->user()->currentOrganization();
+        
+        // Find user but ensure they are in the organization
+        $user = $organization->users()->where('users.id', $userId)->firstOrFail();
+
+        // Get QR codes created by this user in this organization
+        $qrCodes = $organization->qrCodes()
+            ->where('user_id', $user->id)
+            ->with('tags')
+            ->latest()
+            ->get();        
+        
+        $activities = \Spatie\Activitylog\Models\Activity::where('causer_id', $user->id)
+            ->latest()
+            ->limit(50)
+            ->get();
+
+        return Inertia::render('Team/Show', [
+            'member' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'profile_photo_url' => $user->profile_photo_url,
+                'pivot' => $user->pivot,
+            ],
+            'qr_codes' => $qrCodes,
+            'activities' => $activities,
+        ]);
     }
 }

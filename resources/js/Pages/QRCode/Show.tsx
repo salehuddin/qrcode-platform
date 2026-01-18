@@ -5,12 +5,22 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/Com
 import { Button } from '@/Components/ui/button';
 import { Badge } from '@/Components/ui/badge';
 import { QRCodePreview } from './Partials/QRCodePreview';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/Components/ui/dropdown-menu";
+import { Download } from 'lucide-react';
 
 interface QRCodeShowProps extends PageProps {
     qrCode: QRCode;
+    activities: any[];
 }
 
-export default function Show({ auth, qrCode }: QRCodeShowProps) {
+export default function Show({ auth, qrCode, activities }: QRCodeShowProps) {
     console.log('Show props:', { qrCode });
 
     const currentQR = qrCode;
@@ -68,6 +78,31 @@ export default function Show({ auth, qrCode }: QRCodeShowProps) {
                                 ← Back to QR Codes
                             </Link>
                             <div className="flex gap-2">
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button variant="outline">
+                                            <Download className="mr-2 h-4 w-4" />
+                                            Download
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end">
+                                        <DropdownMenuLabel>Choose Format</DropdownMenuLabel>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem onClick={() => window.location.href = route('qr-codes.download', { qrCode: currentQR.id, format: 'png' })}>
+                                            PNG Image (.png)
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem onClick={() => window.location.href = route('qr-codes.download', { qrCode: currentQR.id, format: 'svg' })}>
+                                            SVG Vector (.svg)
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem onClick={() => window.location.href = route('qr-codes.download', { qrCode: currentQR.id, format: 'pdf' })}>
+                                            PDF Document (.pdf)
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem onClick={() => window.location.href = route('qr-codes.download', { qrCode: currentQR.id, format: 'eps' })}>
+                                            EPS Vector (.eps)
+                                        </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                                
                                 <Button asChild variant="outline">
                                     <Link href={`/qr-codes/${currentQR.id}/analytics`}>
                                         View Analytics
@@ -93,7 +128,11 @@ export default function Show({ auth, qrCode }: QRCodeShowProps) {
                                 </CardHeader>
                                 <CardContent className="flex justify-center">
                                     <div className="w-full max-w-xs">
-                                        <QRCodePreview data={currentQR.content} customization={customization} />
+                                        <QRCodePreview 
+                                            data={currentQR.content} 
+                                            customization={customization} 
+                                            showDownloadButtons={false}
+                                        />
                                     </div>
                                 </CardContent>
                             </Card>
@@ -142,7 +181,10 @@ export default function Show({ auth, qrCode }: QRCodeShowProps) {
 
                                     <div>
                                         <label className="text-sm font-medium text-gray-500">Created</label>
-                                        <p className="text-sm">{new Date(currentQR.created_at).toLocaleString()}</p>
+                                        <p className="text-sm">
+                                            {new Date(currentQR.created_at).toLocaleString()}
+                                            {currentQR.user && <span className="text-muted-foreground"> by {currentQR.user.name}</span>}
+                                        </p>
                                     </div>
                                 </CardContent>
                             </Card>
@@ -184,6 +226,40 @@ export default function Show({ auth, qrCode }: QRCodeShowProps) {
                                         <label className="text-sm font-medium text-gray-500">Error Correction</label>
                                         <p className="text-sm mt-1">{currentQR.design?.error_correction ?? 'M'}</p>
                                     </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        {/* Audit Trail */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Activity Log</CardTitle>
+                                <CardDescription>History of changes and actions</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="space-y-4">
+                                    {activities && activities.length > 0 ? (
+                                        activities.map((log: any) => (
+                                            <div key={log.id} className="flex gap-4 pb-4 border-b last:border-0 last:pb-0">
+                                                <div className="mt-1 bg-primary/10 p-2 rounded-full h-8 w-8 flex items-center justify-center">
+                                                    <span className="text-xs font-bold text-primary">
+                                                        {log.event.charAt(0).toUpperCase()}
+                                                    </span>
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <p className="text-sm font-medium">
+                                                        {log.description}
+                                                        <span className="text-muted-foreground font-normal"> by {log.causer?.name || 'System'}</span>
+                                                    </p>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        {new Date(log.created_at).toLocaleString()}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p className="text-sm text-muted-foreground">No activity recorded yet.</p>
+                                    )}
                                 </div>
                             </CardContent>
                         </Card>

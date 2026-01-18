@@ -34,6 +34,7 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'auth' => [
                 'user' => $request->user(),
+                'current_organization' => $request->user()?->currentOrganization(),
             ],
             'features' => [
                 'edition' => Feature::edition(),

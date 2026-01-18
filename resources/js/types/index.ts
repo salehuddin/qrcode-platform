@@ -47,6 +47,7 @@ export interface QRCode {
     folder_id?: number | null;
     folder?: Folder;
     tags?: Tag[];
+    user?: User;
 }
 
 export type QRCodeType = 

@@ -244,6 +244,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/qr-codes/{id}/restore', [QRCodeController::class, 'restore'])->name('qr-codes.restore');
     Route::delete('/qr-codes/{id}/force-delete', [QRCodeController::class, 'forceDelete'])->name('qr-codes.force-delete');
 
+    Route::get('/qr-codes/{qrCode}/download', [QRCodeController::class, 'download'])->name('qr-codes.download');
     Route::resource('qr-codes', QRCodeController::class);
 
     // Team Management Routes
@@ -278,6 +279,7 @@ Route::middleware('auth')->group(function () {
 
     // Team Management
     Route::get('/team', [App\Http\Controllers\TeamController::class, 'index'])->name('team.index');
+    Route::get('/team/members/{user}', [App\Http\Controllers\TeamController::class, 'show'])->name('team.show');
     Route::post('/teams', [App\Http\Controllers\TeamController::class, 'store'])->name('teams.store');
     Route::post('/team/members', [App\Http\Controllers\TeamMemberController::class, 'store'])->name('team.members.store');
     Route::put('/team/members/{user}', [App\Http\Controllers\TeamMemberController::class, 'update'])->name('team.members.update');

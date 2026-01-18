@@ -417,60 +417,8 @@ export default function QRCodeIndex({ qrCodes = mockQRCodes, folders = mockFolde
         tagsForm.setData('tag_ids', newTags);
     };
 
-    // Download QR Code handler
-    const handleDownloadQRCode = (qr: QRCode, extension: 'png' | 'svg' | 'jpeg' | 'webp') => {
-        const hasGradient = qr.customization?.gradientEnabled;
-        const gradient = hasGradient
-            ? {
-                  type: (qr.customization?.gradientType || 'linear') as any,
-                  rotation: typeof qr.customization?.gradientRotation === 'number'
-                      ? qr.customization.gradientRotation
-                      : 0,
-                  colorStops: [
-                      {
-                          offset: 0,
-                          color: qr.customization?.gradientStartColor || qr.customization?.dotsColor || qr.design?.foreground_color || '#000000',
-                      },
-                      {
-                          offset: 1,
-                          color: qr.customization?.gradientEndColor || qr.customization?.dotsColor || qr.design?.foreground_color || '#000000',
-                      },
-                  ],
-              }
-            : undefined;
-
-        const options = {
-            width: 1024,
-            height: 1024,
-            data: qr.content,
-            dotsOptions: {
-                color: qr.customization?.dotsColor ?? qr.design?.foreground_color ?? '#000000',
-                type: (qr.customization?.dotsType ?? (qr.design?.pattern === 'dots' ? 'dots' : qr.design?.pattern === 'rounded' ? 'rounded' : 'square')) as any,
-                ...(gradient ? { gradient: gradient as any } : {}),
-            },
-            backgroundOptions: {
-                color: qr.customization?.backgroundColor ?? qr.design?.background_color ?? '#ffffff',
-            },
-            cornersSquareOptions: {
-                color: qr.customization?.cornersSquareColor ?? qr.design?.foreground_color ?? '#000000',
-                type: (qr.customization?.cornersSquareType ?? 'square') as any,
-            },
-            cornersDotOptions: {
-                color: qr.customization?.cornersDotsColor ?? qr.design?.foreground_color ?? '#000000',
-                type: (qr.customization?.cornersDotsType ?? 'dot') as any,
-            },
-            image: qr.customization?.image,
-            imageOptions: {
-                crossOrigin: 'anonymous',
-                margin: 8,
-                imageSize: (qr.customization?.imageSize || 0.2) as number,
-            },
-            errorCorrectionLevel: (qr.customization?.errorCorrectionLevel ?? qr.design?.error_correction ?? 'M') as any,
-        };
-
-        const qrCode = new QRCodeStyling(options);
-        qrCode.download({ name: qr.name || 'qr-code', extension });
-    };
+    // Download QR Code handler (Legacy client-side, now using backend)
+    // const handleDownloadQRCode = ...
 
     const isAllSelected = filteredAndSortedQRCodes.length > 0 && 
         filteredAndSortedQRCodes.every(qr => selectedIds.has(qr.id));
@@ -820,17 +768,17 @@ export default function QRCodeIndex({ qrCodes = mockQRCodes, folders = mockFolde
                                                             </Button>
                                                         </DropdownMenuTrigger>
                                                         <DropdownMenuContent>
-                                                            <DropdownMenuItem onClick={() => handleDownloadQRCode(qr, 'png')}>
+                                                            <DropdownMenuItem onClick={() => window.location.href = route('qr-codes.download', { qrCode: qr.id, format: 'png' })}>
                                                                 PNG
                                                             </DropdownMenuItem>
-                                                            <DropdownMenuItem onClick={() => handleDownloadQRCode(qr, 'svg')}>
+                                                            <DropdownMenuItem onClick={() => window.location.href = route('qr-codes.download', { qrCode: qr.id, format: 'svg' })}>
                                                                 SVG
                                                             </DropdownMenuItem>
-                                                            <DropdownMenuItem onClick={() => handleDownloadQRCode(qr, 'jpeg')}>
-                                                                JPEG
+                                                            <DropdownMenuItem onClick={() => window.location.href = route('qr-codes.download', { qrCode: qr.id, format: 'pdf' })}>
+                                                                PDF
                                                             </DropdownMenuItem>
-                                                            <DropdownMenuItem onClick={() => handleDownloadQRCode(qr, 'webp')}>
-                                                                WebP
+                                                            <DropdownMenuItem onClick={() => window.location.href = route('qr-codes.download', { qrCode: qr.id, format: 'eps' })}>
+                                                                EPS
                                                             </DropdownMenuItem>
                                                         </DropdownMenuContent>
                                                     </DropdownMenu>

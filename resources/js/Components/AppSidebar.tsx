@@ -1,4 +1,4 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { 
     Home, 
     QrCode, 
@@ -46,6 +46,9 @@ interface AppSidebarProps {
 }
 
 export function AppSidebar({ user }: AppSidebarProps) {
+    const { props } = usePage();
+    // @ts-ignore
+    const currentOrganization = props.auth?.current_organization;
     const [collapsed, setCollapsed] = useState(false);
     const { theme, setTheme } = useTheme();
 
@@ -121,9 +124,17 @@ export function AppSidebar({ user }: AppSidebarProps) {
                 {/* Header */}
                 <div className="flex h-16 items-center justify-between border-b px-4">
                     {!collapsed && (
-                        <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
-                            <QrCode className="h-6 w-6 text-primary" />
-                            <span className="text-lg">QR Platform</span>
+                        <Link href="/dashboard" className="flex items-center gap-2 font-semibold overflow-hidden">
+                            {currentOrganization?.logo_url ? (
+                                <img 
+                                    src={currentOrganization.logo_url} 
+                                    alt={currentOrganization.name} 
+                                    className="h-8 w-8 object-contain rounded"
+                                />
+                            ) : (
+                                <QrCode className="h-6 w-6 text-primary shrink-0" />
+                            )}
+                            <span className="text-lg truncate">{currentOrganization?.name || 'QR Platform'}</span>
                         </Link>
                     )}
                     <Button

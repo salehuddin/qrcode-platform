@@ -17,8 +17,14 @@ class QrCodeController extends Controller
     public function index(Request $request)
     {
         $view = $request->get('view', 'active');
-        
-        $query = Auth::user()->qrCodes()->with(['folder', 'tags']);
+        $user = Auth::user();
+        $organization = $user->currentOrganization();
+
+        if ($organization && $user->canViewAllQrCodes($organization)) {
+            $query = $organization->qrCodes()->with(['folder', 'tags', 'user']);
+        } else {
+            $query = $user->qrCodes()->with(['folder', 'tags', 'user']);
+        }
 
         // Handle different views
         if ($view === 'trash') {
@@ -94,24 +100,41 @@ class QrCodeController extends Controller
 
     public function show(QrCode $qrCode)
     {
-        // Ensure user owns the QR code (or has permission via org)
-        // For now, simple ownership check, but should use Policy
-        if ($qrCode->user_id !== Auth::id()) {
-             // Check org permission if needed
-             // Gate::authorize('view', $qrCode);
+        $user = Auth::user();
+        $organization = $user->currentOrganization();
+
+        // Check permissions: Admins/Editors can view all, others view own
+        if ($qrCode->user_id !== $user->id) {
+            if (!$organization || !$user->canViewAllQrCodes($organization)) {
+                abort(403, 'You do not have permission to view this QR code.');
+            }
         }
 
-        $qrCode->load(['folder', 'tags']);
+        $qrCode->load(['folder', 'tags', 'user']);
+        
+        // Fetch activities with causer
+        $activities = $qrCode->activities()
+            ->with('causer')
+            ->latest()
+            ->get();
 
         return Inertia::render('QRCode/Show', [
-            'qrCode' => $qrCode
+            'qrCode' => $qrCode,
+            'activities' => $activities,
+            'folders' => $organization ? $this->folderService->getFolderTree($organization) : [],
+            'tags' => $organization ? $this->tagService->getTags($organization) : [],
         ]);
     }
 
     public function edit(QrCode $qrCode)
     {
-        if ($qrCode->user_id !== Auth::id()) {
-            abort(403);
+        $user = Auth::user();
+        $organization = $user->currentOrganization();
+
+        if ($qrCode->user_id !== $user->id) {
+            if (!$organization || !$user->canEditAllQrCodes($organization)) {
+                abort(403);
+            }
         }
 
         $organization = Auth::user()->currentOrganization();
@@ -126,19 +149,25 @@ class QrCodeController extends Controller
 
     public function update(Request $request, QrCode $qrCode)
     {
-        if ($qrCode->user_id !== Auth::id()) {
-            abort(403);
+        $user = Auth::user();
+        $organization = $user->currentOrganization();
+
+        // Check permissions: Owner/Admin can edit all, Editor can edit own, others edit own
+        if ($qrCode->user_id !== $user->id) {
+            if (!$organization || !$user->canEditAllQrCodes($organization)) {
+                abort(403, 'You do not have permission to edit this QR code.');
+            }
         }
 
         $validated = $request->validate([
-            'name' => 'nullable|string|max:255',
-            'description' => 'nullable|string|max:1000',
-            'destination_url' => 'nullable|url',
+            'name' => 'required|string|max:255',
+            'destination_url' => 'required|url',
+            'folder_id' => 'nullable|exists:folders,id',
+            'is_active' => 'boolean',
+            'tags' => 'array',
+            'tags.*' => 'exists:tags,id',
             'design' => 'nullable|array',
             'customization' => 'nullable|array',
-            'folder_id' => 'nullable|exists:folders,id',
-            'tags' => 'nullable|array',
-            'tags.*' => 'exists:tags,id',
         ]);
 
         $qrCode->update($validated);
@@ -152,13 +181,19 @@ class QrCodeController extends Controller
 
     public function destroy(QrCode $qrCode)
     {
-        if ($qrCode->user_id !== Auth::id()) {
-            abort(403);
+        $user = Auth::user();
+        $organization = $user->currentOrganization();
+
+        if ($qrCode->user_id !== $user->id) {
+            if (!$organization || !$user->canEditAllQrCodes($organization)) {
+                abort(403, 'You do not have permission to delete this QR code.');
+            }
         }
 
         $qrCode->delete();
 
-        return redirect()->route('qr-codes.index');
+        return redirect()->route('qr-codes.index')
+            ->with('success', 'QR Code moved to trash.');
     }
 
     /**
@@ -166,8 +201,13 @@ class QrCodeController extends Controller
      */
     public function analytics(QrCode $qrCode)
     {
-        if ($qrCode->user_id !== Auth::id()) {
-            abort(403);
+        $user = Auth::user();
+        $organization = $user->currentOrganization();
+
+        if ($qrCode->user_id !== $user->id) {
+            if (!$organization || !$user->canViewAllQrCodes($organization)) {
+                abort(403);
+            }
         }
 
         $analyticsService = new \App\Services\AnalyticsService();
@@ -194,9 +234,16 @@ class QrCodeController extends Controller
             'folder_id' => 'nullable|exists:folders,id',
         ]);
 
-        $qrCodes = QrCode::whereIn('id', $request->ids)
-            ->where('user_id', Auth::id())
-            ->get();
+        $query = QrCode::whereIn('id', $request->ids);
+        
+        $user = Auth::user();
+        $organization = $user->currentOrganization();
+
+        if (!$organization || !$user->canEditAllQrCodes($organization)) {
+            $query->where('user_id', $user->id);
+        }
+
+        $qrCodes = $query->get();
 
         foreach ($qrCodes as $qrCode) {
             $qrCode->update(['folder_id' => $request->folder_id]);
@@ -217,9 +264,16 @@ class QrCodeController extends Controller
             'tag_ids.*' => 'required|integer|exists:tags,id',
         ]);
 
-        $qrCodes = QrCode::whereIn('id', $request->ids)
-            ->where('user_id', Auth::id())
-            ->get();
+        $query = QrCode::whereIn('id', $request->ids);
+        
+        $user = Auth::user();
+        $organization = $user->currentOrganization();
+
+        if (!$organization || !$user->canEditAllQrCodes($organization)) {
+            $query->where('user_id', $user->id);
+        }
+
+        $qrCodes = $query->get();
 
         foreach ($qrCodes as $qrCode) {
             $qrCode->tags()->sync($request->tag_ids);
@@ -233,8 +287,13 @@ class QrCodeController extends Controller
      */
     public function toggleStatus(QrCode $qrCode)
     {
-        if ($qrCode->user_id !== Auth::id()) {
-            abort(403);
+        $user = Auth::user();
+        $organization = $user->currentOrganization();
+
+        if ($qrCode->user_id !== $user->id) {
+            if (!$organization || !$user->canEditAllQrCodes($organization)) {
+                abort(403);
+            }
         }
 
         if ($qrCode->mode !== 'dynamic') {
@@ -252,9 +311,13 @@ class QrCodeController extends Controller
     public function restore($id)
     {
         $qrCode = QrCode::onlyTrashed()->findOrFail($id);
+        $user = Auth::user();
+        $organization = $user->currentOrganization();
 
-        if ($qrCode->user_id !== Auth::id()) {
-            abort(403);
+        if ($qrCode->user_id !== $user->id) {
+            if (!$organization || !$user->canEditAllQrCodes($organization)) {
+                abort(403);
+            }
         }
 
         $qrCode->restore();
@@ -268,13 +331,71 @@ class QrCodeController extends Controller
     public function forceDelete($id)
     {
         $qrCode = QrCode::onlyTrashed()->findOrFail($id);
+        $user = Auth::user();
+        $organization = $user->currentOrganization();
 
-        if ($qrCode->user_id !== Auth::id()) {
-            abort(403);
+        if ($qrCode->user_id !== $user->id) {
+            if (!$organization || !$user->canEditAllQrCodes($organization)) {
+                abort(403);
+            }
         }
 
         $qrCode->forceDelete();
 
         return back()->with('success', 'QR code permanently deleted.');
+    }
+    /**
+     * Download the QR code in a specific format.
+     */
+    public function download(Request $request, QrCode $qrCode)
+    {
+        $user = Auth::user();
+        $organization = $user->currentOrganization();
+
+        if ($qrCode->user_id !== $user->id) {
+            if (!$organization || !$user->canViewAllQrCodes($organization)) {
+                abort(403);
+            }
+        }
+
+        $format = $request->input('format', 'png');
+        $allowedFormats = ['png', 'svg', 'pdf', 'eps'];
+
+        if (!in_array($format, $allowedFormats)) {
+            abort(400, 'Invalid format');
+        }
+
+        $builder = new \Endroid\QrCode\Builder\Builder(
+            writer: match ($format) {
+                'svg' => new \Endroid\QrCode\Writer\SvgWriter(),
+                'pdf' => new \Endroid\QrCode\Writer\PdfWriter(),
+                'eps' => new \Endroid\QrCode\Writer\EpsWriter(),
+                default => new \Endroid\QrCode\Writer\PngWriter(),
+            },
+            writerOptions: [],
+            validateResult: false,
+            data: $qrCode->content,
+            encoding: new \Endroid\QrCode\Encoding\Encoding('UTF-8'),
+            errorCorrectionLevel: match (($qrCode->design['error_correction'] ?? 'M')) {
+                'L' => \Endroid\QrCode\ErrorCorrectionLevel::Low,
+                'Q' => \Endroid\QrCode\ErrorCorrectionLevel::Quartile,
+                'H' => \Endroid\QrCode\ErrorCorrectionLevel::High,
+                default => \Endroid\QrCode\ErrorCorrectionLevel::Medium,
+            },
+            size: 300,
+            margin: 10,
+            roundBlockSizeMode: \Endroid\QrCode\RoundBlockSizeMode::Margin,
+            // logoPath: $logoPath, // TODO: Add logo support if needed from design
+            // labelText: 'Scan me', // Optional
+        );
+
+        $result = $builder->build();
+        
+        $headers = [
+            'Content-Type' => $result->getMimeType(),
+            'Content-Disposition' => 'attachment; filename="' . $qrCode->name . '.' . $format . '"',
+        ];
+
+        return response($result->getString(), 200, $headers);
     }
 }
