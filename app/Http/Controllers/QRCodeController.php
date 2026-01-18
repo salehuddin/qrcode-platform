@@ -16,7 +16,17 @@ class QrCodeController extends Controller
 
     public function index(Request $request)
     {
-        $query = Auth::user()->qrCodes()->with(['folder', 'tags'])->latest();
+        $view = $request->get('view', 'active');
+        
+        $query = Auth::user()->qrCodes()->with(['folder', 'tags']);
+
+        // Handle different views
+        if ($view === 'trash') {
+            $query->onlyTrashed();
+        }
+        // Both 'active' and 'all' views show only non-deleted items (default behavior)
+
+        $query->latest();
 
         if ($request->has('folder_id')) {
             $query->where('folder_id', $request->folder_id);
@@ -36,6 +46,7 @@ class QrCodeController extends Controller
             'folders' => $organization ? $this->folderService->getFolderTree($organization) : [],
             'tags' => $organization ? $this->tagService->getTags($organization) : [],
             'filters' => $request->only(['folder_id', 'tag_id']),
+            'view' => $view,
         ]);
     }
 
@@ -215,5 +226,55 @@ class QrCodeController extends Controller
         }
 
         return redirect()->back()->with('success', 'Tags updated successfully.');
+    }
+
+    /**
+     * Toggle the active status of a QR code (dynamic only).
+     */
+    public function toggleStatus(QrCode $qrCode)
+    {
+        if ($qrCode->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        if ($qrCode->mode !== 'dynamic') {
+            return back()->with('error', 'Only dynamic QR codes can have their status toggled.');
+        }
+
+        $qrCode->update(['is_active' => !$qrCode->is_active]);
+
+        return back()->with('success', 'QR code status updated.');
+    }
+
+    /**
+     * Restore a soft-deleted QR code.
+     */
+    public function restore($id)
+    {
+        $qrCode = QrCode::onlyTrashed()->findOrFail($id);
+
+        if ($qrCode->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $qrCode->restore();
+
+        return back()->with('success', 'QR code restored successfully.');
+    }
+
+    /**
+     * Permanently delete a QR code.
+     */
+    public function forceDelete($id)
+    {
+        $qrCode = QrCode::onlyTrashed()->findOrFail($id);
+
+        if ($qrCode->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $qrCode->forceDelete();
+
+        return back()->with('success', 'QR code permanently deleted.');
     }
 }

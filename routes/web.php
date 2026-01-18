@@ -231,7 +231,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ]);
     })->name('admin.users');
 
+    // Admin Template Management
+    Route::get('/admin/templates', [App\Http\Controllers\Admin\TemplateController::class, 'index'])->name('admin.templates');
+    Route::post('/admin/templates', [App\Http\Controllers\Admin\TemplateController::class, 'store'])->name('admin.templates.store');
+    Route::delete('/admin/templates/{id}', [App\Http\Controllers\Admin\TemplateController::class, 'destroy'])->name('admin.templates.destroy');
+
+
     Route::get('/qr-codes/{qrCode}/analytics', [QRCodeController::class, 'analytics'])->name('qr-codes.analytics');
+    
+    // QR Code Status and Trash Routes
+    Route::patch('/qr-codes/{qrCode}/toggle-status', [QRCodeController::class, 'toggleStatus'])->name('qr-codes.toggle-status');
+    Route::post('/qr-codes/{id}/restore', [QRCodeController::class, 'restore'])->name('qr-codes.restore');
+    Route::delete('/qr-codes/{id}/force-delete', [QRCodeController::class, 'forceDelete'])->name('qr-codes.force-delete');
 
     Route::resource('qr-codes', QRCodeController::class);
 
@@ -271,6 +282,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/team/members', [App\Http\Controllers\TeamMemberController::class, 'store'])->name('team.members.store');
     Route::put('/team/members/{user}', [App\Http\Controllers\TeamMemberController::class, 'update'])->name('team.members.update');
     Route::delete('/team/members/{user}', [App\Http\Controllers\TeamMemberController::class, 'destroy'])->name('team.members.destroy');
+
+    // Design Studio
+    Route::get('/design', [App\Http\Controllers\DesignController::class, 'index'])->name('design.index');
+    Route::post('/design/brand-kits', [App\Http\Controllers\DesignController::class, 'storeBrandKit'])->name('design.brand-kits.store');
+    Route::delete('/design/brand-kits/{id}', [App\Http\Controllers\DesignController::class, 'deleteBrandKit'])->name('design.brand-kits.destroy');
+    Route::post('/design/templates', [App\Http\Controllers\DesignController::class, 'storeTemplate'])->name('design.templates.store');
 });
 
 require __DIR__.'/auth.php';

@@ -6,12 +6,13 @@ import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { FormEventHandler } from 'react';
 
-export default function Register() {
+export default function Register({ token, email }: { token?: string, email?: string }) {
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
-        email: '',
+        email: email || '',
         password: '',
         password_confirmation: '',
+        token: token || '',
     });
 
     const submit: FormEventHandler = (e) => {
@@ -44,6 +45,12 @@ export default function Register() {
                     <InputError message={errors.name} className="mt-2" />
                 </div>
 
+                {email && (
+                    <div className="mb-4 text-sm text-blue-600">
+                        Registering with invitation for <strong>{email}</strong>
+                    </div>
+                )}
+
                 <div className="mt-4">
                     <InputLabel htmlFor="email" value="Email" />
 
@@ -56,6 +63,7 @@ export default function Register() {
                         autoComplete="username"
                         onChange={(e) => setData('email', e.target.value)}
                         required
+                        disabled={!!email}
                     />
 
                     <InputError message={errors.email} className="mt-2" />

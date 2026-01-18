@@ -8,6 +8,7 @@ import {
     LogOut,
     LayoutDashboard,
     FileText,
+    LayoutTemplate,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -56,6 +57,12 @@ export function Sidebar() {
                     href: route('admin.dashboard'),
                     icon: <LayoutDashboard className="h-4 w-4" />,
                     isActive: currentRoute === 'admin.dashboard',
+                },
+                {
+                    label: 'Templates',
+                    href: route('admin.templates'),
+                    icon: <LayoutTemplate className="h-4 w-4" />,
+                    isActive: currentRoute === 'admin.templates',
                 },
                 {
                     label: 'Users',

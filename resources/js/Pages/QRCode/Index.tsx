@@ -8,9 +8,11 @@ import { Input } from '@/Components/ui/input';
 import { useState, useMemo } from 'react';
 import Checkbox from '@/Components/Checkbox';
 import FolderTree from '@/Components/FolderTree';
-import { Folder as FolderIcon, Plus, FolderOpen, MoreVertical, Tag as TagIcon, Move } from 'lucide-react';
+import { Folder as FolderIcon, Plus, FolderOpen, MoreVertical, Tag as TagIcon, Move, Trash2, RotateCcw } from 'lucide-react';
 import { QRCodePreview } from './Partials/QRCodePreview';
 import QRCodeStyling from 'qr-code-styling';
+import { Tabs, TabsList, TabsTrigger } from '@/Components/ui/tabs';
+import { Switch } from '@/Components/ui/switch';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -72,9 +74,10 @@ interface QRCodeIndexProps extends PageProps {
     qrCodes?: QRCode[];
     folders?: Folder[];
     tags?: Tag[];
+    view?: 'active' | 'all' | 'trash';
 }
 
-export default function QRCodeIndex({ qrCodes = mockQRCodes, folders = mockFolders, tags = mockTags }: QRCodeIndexProps) {
+export default function QRCodeIndex({ qrCodes = mockQRCodes, folders = mockFolders, tags = mockTags, view = 'active' }: QRCodeIndexProps) {
     const { props } = usePage();
     const router = useForm(); // Use useForm for Inertia actions
 
@@ -485,6 +488,7 @@ export default function QRCodeIndex({ qrCodes = mockQRCodes, folders = mockFolde
 
             <div className="py-12">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
+
                     <div className="flex flex-col md:flex-row gap-6">
                         {/* Left Sidebar: Folders & Tags */}
                         <div className="w-full md:w-64 flex-shrink-0 space-y-4">
@@ -699,13 +703,13 @@ export default function QRCodeIndex({ qrCodes = mockQRCodes, folders = mockFolde
                                         <div className="space-y-1">
                                             <label className="text-xs font-medium text-muted-foreground">Status</label>
                                             <select
-                                                value={statusFilter}
-                                                onChange={(e) => setStatusFilter(e.target.value as any)}
+                                                value={view}
+                                                onChange={(e) => router.get(route('qr-codes.index', { view: e.target.value }))}
                                                 className="w-full h-8 text-xs border border-input bg-background text-foreground rounded-md px-2 py-1"
                                             >
-                                                <option value="all">All Status</option>
                                                 <option value="active">Active</option>
-                                                <option value="inactive">Inactive</option>
+                                                <option value="all">All</option>
+                                                <option value="trash">Trash</option>
                                             </select>
                                         </div>
 
@@ -859,18 +863,35 @@ export default function QRCodeIndex({ qrCodes = mockQRCodes, folders = mockFolde
                                                         >
                                                             {qr.type.toUpperCase()}
                                                         </Badge>
-                                                        <Badge 
-                                                            variant={qr.is_active ? "default" : "secondary"}
-                                                            className="rounded-full px-3"
-                                                            style={qr.is_active ? { 
-                                                                backgroundColor: '#e9d5ff',
-                                                                color: '#7c3aed',
-                                                                borderColor: '#c4b5fd'
-                                                            } : {}}
-                                                        >
-                                                            {qr.is_active ? 'Active' : 'Inactive'}
-                                                        </Badge>
+                                                        
+                                                        {/* Status Toggle for Dynamic QR, Badge for Static */}
+                                                        {qr.mode === 'dynamic' && view !== 'trash' ? (
+                                                            <div className="flex items-center gap-2">
+                                                                <Switch
+                                                                    checked={qr.is_active}
+                                                                    onCheckedChange={() => {
+                                                                        router.patch(route('qr-codes.toggle-status', qr.id));
+                                                                    }}
+                                                                />
+                                                                <span className="text-sm text-muted-foreground">
+                                                                    {qr.is_active ? 'Active' : 'Inactive'}
+                                                                </span>
+                                                            </div>
+                                                        ) : (
+                                                            <Badge 
+                                                                variant={qr.is_active ? "default" : "secondary"}
+                                                                className="rounded-full px-3"
+                                                                style={qr.is_active ? { 
+                                                                    backgroundColor: '#e9d5ff',
+                                                                    color: '#7c3aed',
+                                                                    borderColor: '#c4b5fd'
+                                                                } : {}}
+                                                            >
+                                                                {qr.is_active ? 'Active' : 'Inactive'}
+                                                            </Badge>
+                                                        )}
                                                     </div>
+
 
                                                     {/* Folder and Tags */}
                                                     <div className="flex items-center gap-3 flex-wrap">
@@ -928,48 +949,86 @@ export default function QRCodeIndex({ qrCodes = mockQRCodes, folders = mockFolde
 
                                                 {/* Actions */}
                                                 <div className="flex-shrink-0 flex items-center gap-2">
-                                                    <Button 
-                                                        variant="outline" 
-                                                        size="sm"
-                                                        asChild
-                                                        className="min-w-[80px]"
-                                                    >
-                                                        <Link href={`/qr-codes/${qr.id}`}>
-                                                            View
-                                                        </Link>
-                                                    </Button>
-                                                    
-                                                    <Button 
-                                                        variant="ghost" 
-                                                        size="sm"
-                                                        asChild
-                                                        className="h-8 w-8 p-0"
-                                                    >
-                                                        <Link href={`/qr-codes/${qr.id}/edit`}>
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                                <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
-                                                                <path d="m15 5 4 4"/>
-                                                            </svg>
-                                                        </Link>
-                                                    </Button>
-                                                    
-                                                    <DropdownMenu>
-                                                        <DropdownMenuTrigger asChild>
-                                                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                                                <MoreVertical className="w-4 h-4" />
+                                                    {view === 'trash' ? (
+                                                        <>
+                                                            <Button
+                                                                variant="outline"
+                                                                size="sm"
+                                                                onClick={() => {
+                                                                    router.post(route('qr-codes.restore', qr.id));
+                                                                }}
+                                                            >
+                                                                <RotateCcw className="w-4 h-4 mr-2" />
+                                                                Restore
                                                             </Button>
-                                                        </DropdownMenuTrigger>
-                                                        <DropdownMenuContent align="end">
-                                                            <DropdownMenuItem onClick={() => openMoveDialog([qr.id])}>
-                                                                <Move className="w-4 h-4 mr-2" />
-                                                                Move to Folder
-                                                            </DropdownMenuItem>
-                                                            <DropdownMenuItem onClick={() => openTagsDialog([qr.id])}>
-                                                                <TagIcon className="w-4 h-4 mr-2" />
-                                                                Manage Tags
-                                                            </DropdownMenuItem>
-                                                        </DropdownMenuContent>
-                                                    </DropdownMenu>
+                                                            <Button
+                                                                variant="destructive"
+                                                                size="sm"
+                                                                onClick={() => {
+                                                                    if (confirm('Permanently delete this QR code? This cannot be undone.')) {
+                                                                        router.delete(route('qr-codes.force-delete', qr.id));
+                                                                    }
+                                                                }}
+                                                            >
+                                                                <Trash2 className="w-4 h-4 mr-2" />
+                                                                Delete Permanently
+                                                            </Button>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <Button 
+                                                                variant="outline" 
+                                                                size="sm"
+                                                                asChild
+                                                                className="min-w-[80px]"
+                                                            >
+                                                                <Link href={`/qr-codes/${qr.id}`}>
+                                                                    View
+                                                                </Link>
+                                                            </Button>
+                                                            
+                                                            <Button 
+                                                                variant="ghost" 
+                                                                size="sm"
+                                                                asChild
+                                                                className="h-8 w-8 p-0"
+                                                            >
+                                                                <Link href={`/qr-codes/${qr.id}/edit`}>
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                                        <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+                                                                        <path d="m15 5 4 4"/>
+                                                                    </svg>
+                                                                </Link>
+                                                            </Button>
+                                                            
+                                                            <DropdownMenu>
+                                                                <DropdownMenuTrigger asChild>
+                                                                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                                                        <MoreVertical className="w-4 h-4" />
+                                                                    </Button>
+                                                                </DropdownMenuTrigger>
+                                                                <DropdownMenuContent align="end">
+                                                                    <DropdownMenuItem onClick={() => openMoveDialog([qr.id])}>
+                                                                        <Move className="w-4 h-4 mr-2" />
+                                                                        Move to Folder
+                                                                    </DropdownMenuItem>
+                                                                    <DropdownMenuItem onClick={() => openTagsDialog([qr.id])}>
+                                                                        <TagIcon className="w-4 h-4 mr-2" />
+                                                                        Manage Tags
+                                                                    </DropdownMenuItem>
+                                                                    <DropdownMenuItem 
+                                                                        className="text-destructive"
+                                                                        onClick={() => {
+                                                                            router.delete(route('qr-codes.destroy', qr.id));
+                                                                        }}
+                                                                    >
+                                                                        <Trash2 className="w-4 h-4 mr-2" />
+                                                                        Delete
+                                                                    </DropdownMenuItem>
+                                                                </DropdownMenuContent>
+                                                            </DropdownMenu>
+                                                        </>
+                                                    )}
                                                 </div>
                                             </div>
                                         </CardContent>

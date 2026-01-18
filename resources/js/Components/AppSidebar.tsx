@@ -10,7 +10,8 @@ import {
     Moon,
     Sun,
     LogOut,
-    User
+    User,
+    Palette
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -66,6 +67,12 @@ export function AppSidebar({ user }: AppSidebarProps) {
             href: '/analytics',
             icon: BarChart3,
             active: route().current('analytics'),
+        },
+        {
+            title: 'Design Studio',
+            href: '/design',
+            icon: Palette,
+            active: route().current('design.*'),
         },
         {
             title: 'Settings',

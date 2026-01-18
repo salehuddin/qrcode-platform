@@ -38,7 +38,11 @@ export default function InviteMemberModal({
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        post(route("team.members.store"), {
+        // Use invitations endpoint which handles both new and existing users via logic?
+        // Actually, previous analysis: TeamMemberController handles existing. InvitationController handles new.
+        // But we want to 'Invite' new people.
+        
+        post(route("invitations.store"), {
             onSuccess: () => {
                 reset();
                 onClose();

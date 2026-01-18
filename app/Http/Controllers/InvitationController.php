@@ -66,6 +66,23 @@ class InvitationController extends Controller
      */
     public function accept(Request $request, $token)
     {
+        // If user is not logged in, redirect to registration with token
+        if (!$request->user()) {
+            $invitation = Invitation::where('token', $token)
+                ->whereNull('accepted_at')
+                ->where('expires_at', '>', now())
+                ->first();
+
+            if (!$invitation) {
+                return redirect()->route('login')->with('error', 'Invalid or expired invitation.');
+            }
+
+            return redirect()->route('register', [
+                'token' => $token,
+                'email' => $invitation->email
+            ]);
+        }
+
         try {
             $organization = $this->invitationService->acceptInvitation($token, $request->user());
             
