@@ -719,8 +719,8 @@ export default function QRCodeIndex({ qrCodes = mockQRCodes, folders = mockFolde
                             {/* QR Codes List */}
                             <div className="space-y-3">
                                 {filteredAndSortedQRCodes.map((qr) => (
-                                    <Card key={qr.id} className="hover:shadow-md transition-shadow">
-                                        <CardContent className="p-4">
+                                    <Card key={qr.id} className="qr-card hover:shadow-md transition-shadow">
+                                        <CardContent className="p-6 gap-4">
                                             <div className="flex items-start gap-4">
                                                 {/* Checkbox */}
                                                 <div className="flex-shrink-0">
@@ -732,7 +732,7 @@ export default function QRCodeIndex({ qrCodes = mockQRCodes, folders = mockFolde
 
                                                 {/* QR Code Preview */}
                                                 <div className="flex-shrink-0">
-                                                    <div className="w-36 h-36 rounded-lg border-2 overflow-hidden bg-white">
+                                                    <div className="qr-preview w-36 h-36 rounded-lg border-2 overflow-hidden bg-white">
                                                         <QRCodePreview 
                                                             data={qr.content} 
                                                             showDownloadButtons={false}

@@ -290,7 +290,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
                                 </Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem asChild>
-                                <Link href="/settings/organization" className="cursor-pointer">
+                                <Link href="/settings/preferences" className="cursor-pointer">
                                     <Settings className="mr-2 h-4 w-4" />
                                     <span>Settings</span>
                                 </Link>

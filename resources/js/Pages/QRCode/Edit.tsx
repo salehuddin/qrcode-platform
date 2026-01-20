@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router } from '@inertiajs/react';
-import { PageProps, QRCodeType, QRCustomization, QRCodeMode, QRCode, Folder, Tag } from '@/types';
+import { PageProps, QRCodeType, QRCustomization, QRCodeMode, QRCode, Folder, Tag, BrandKit } from '@/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/Components/ui/card';
 import { Button } from '@/Components/ui/button';
 import { Badge } from '@/Components/ui/badge';
@@ -83,9 +83,10 @@ interface EditQRCodeProps extends PageProps {
     qrCode: QRCode;
     folders: Folder[];
     tags: Tag[];
+    brandKits: BrandKit[];
 }
 
-export default function EditQRCode({ qrCode, folders, tags }: EditQRCodeProps) {
+export default function EditQRCode({ qrCode, folders, tags, brandKits }: EditQRCodeProps) {
     const [selectedType] = useState<QRCodeType>(qrCode.type as QRCodeType);
     const [mode] = useState<QRCodeMode>((qrCode.mode || 'static') as QRCodeMode);
     const [name, setName] = useState(qrCode.name);
@@ -198,6 +199,10 @@ export default function EditQRCode({ qrCode, folders, tags }: EditQRCodeProps) {
 
             return { ...prev, [key]: value } as Partial<QRCustomization>;
         });
+    };
+
+    const handleApplyBrandKit = (kit: BrandKit) => {
+        setCustomization(kit.config);
     };
 
     const encodeData = useMemo(() => {
@@ -516,6 +521,40 @@ export default function EditQRCode({ qrCode, folders, tags }: EditQRCodeProps) {
                                             </CardDescription>
                                         </CardHeader>
                                         <CardContent>
+                                            {/* Brand Kit Selector */}
+                                            {brandKits && brandKits.length > 0 && (
+                                                <div className="mb-6 pb-6 border-b">
+                                                    <Label className="mb-3 block">Apply Brand Kit</Label>
+                                                    <div className="flex gap-3 overflow-x-auto pb-2">
+                                                        {brandKits.map((kit) => (
+                                                            <Card
+                                                                key={kit.id}
+                                                                className="flex-shrink-0 w-40 cursor-pointer hover:border-primary transition-colors"
+                                                                onClick={() => handleApplyBrandKit(kit)}
+                                                            >
+                                                                <CardContent className="p-4">
+                                                                    <div className="space-y-2">
+                                                                        <p className="font-medium text-sm truncate">{kit.name}</p>
+                                                                        <div className="flex gap-1">
+                                                                            <div
+                                                                                className="w-6 h-6 rounded border"
+                                                                                style={{ backgroundColor: kit.config.dotsColor || '#000' }}
+                                                                                title="Dots Color"
+                                                                            />
+                                                                            <div
+                                                                                className="w-6 h-6 rounded border"
+                                                                                style={{ backgroundColor: kit.config.backgroundColor || '#fff' }}
+                                                                                title="Background Color"
+                                                                            />
+                                                                        </div>
+                                                                    </div>
+                                                                </CardContent>
+                                                            </Card>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+                                            
                                             <CustomizeForm
                                                 qrData={qrData}
                                                 customization={customization}

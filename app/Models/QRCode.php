@@ -16,9 +16,14 @@ class QRCode extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-        ->logOnly(['name', 'type', 'is_active'])
+        ->logOnly(['name', 'description', 'type', 'content', 'destination_url', 'is_active', 'design', 'customization'])
         ->logOnlyDirty()
         ->dontSubmitEmptyLogs();
+    }
+
+    public function scans(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(QrScan::class, 'qr_code_id');
     }
 
     /**
@@ -78,13 +83,7 @@ class QRCode extends Model
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * Get all scans for this QR code.
-     */
-    public function scans()
-    {
-        return $this->hasMany(QrScan::class, 'qr_code_id');
-    }
+
 
     /**
      * Get the organization that owns this QR code.

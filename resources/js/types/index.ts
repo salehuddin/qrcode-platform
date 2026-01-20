@@ -5,6 +5,12 @@ export interface User {
     email_verified_at?: string;
     created_at: string;
     updated_at: string;
+    settings?: {
+        theme?: 'light' | 'dark' | 'system';
+        font_size?: 'small' | 'normal' | 'large';
+        compact_mode?: boolean;
+        default_date_range?: '7days' | '30days' | 'month' | 'year';
+    };
 }
 
 export type QRCodeMode = 'static' | 'dynamic';
@@ -24,6 +30,16 @@ export interface Folder {
     children?: Folder[];
     depth?: number;
     color?: string;
+}
+
+export interface BrandKit {
+    id: number;
+    name: string;
+    organization_id: number;
+    config: QRCustomization;
+    is_default: boolean;
+    created_at: string;
+    updated_at: string;
 }
 
 export interface QRCode {

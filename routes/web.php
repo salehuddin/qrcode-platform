@@ -47,87 +47,13 @@ Route::get('/dashboard', function () {
     ]);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::get('/analytics', function () {
-    // Mock analytics data for Phase 2
-    return Inertia::render('Analytics/Dashboard', [
-        'summary' => [
-            'total_scans' => 1250,
-            'unique_scanners' => 980,
-            'scans_this_month' => 450,
-            'active_qr_codes' => 10,
-        ],
-        'scansOverTime' => [
-            ['label' => 'Mon', 'value' => 120],
-            ['label' => 'Tue', 'value' => 95],
-            ['label' => 'Wed', 'value' => 160],
-            ['label' => 'Thu', 'value' => 110],
-            ['label' => 'Fri', 'value' => 190],
-            ['label' => 'Sat', 'value' => 230],
-            ['label' => 'Sun', 'value' => 160],
-        ],
-        'deviceBreakdown' => [
-            ['label' => 'Mobile', 'value' => 820, 'percent' => 66],
-            ['label' => 'Desktop', 'value' => 310, 'percent' => 25],
-            ['label' => 'Tablet', 'value' => 120, 'percent' => 9],
-        ],
-        'osBreakdown' => [
-            ['label' => 'iOS', 'value' => 480, 'percent' => 38],
-            ['label' => 'Android', 'value' => 420, 'percent' => 34],
-            ['label' => 'Windows', 'value' => 210, 'percent' => 17],
-            ['label' => 'macOS', 'value' => 140, 'percent' => 11],
-        ],
-        'topQrCodes' => [
-            [
-                'id' => '1',
-                'name' => 'Website Homepage',
-                'type' => 'url',
-                'content' => 'https://example.com',
-                'destination_url' => 'https://example.com',
-                'is_active' => true,
-                'scan_count' => 245,
-                'unique_scans' => 198,
-                'last_scanned_at' => '2024-11-23 14:30:00',
-                'created_at' => '2024-11-20 10:00:00',
-                'updated_at' => '2024-11-23 14:30:00',
-                'design' => [
-                    'foreground_color' => '#000000',
-                    'background_color' => '#FFFFFF',
-                    'pattern' => 'square',
-                    'error_correction' => 'M',
-                ],
-                'customization' => null,
-                'user_id' => 1,
-            ],
-            [
-                'id' => '2',
-                'name' => 'Fall Campaign',
-                'type' => 'url',
-                'content' => 'https://example.com/fall',
-                'destination_url' => 'https://example.com/fall',
-                'is_active' => true,
-                'scan_count' => 180,
-                'unique_scans' => 150,
-                'last_scanned_at' => '2024-11-22 18:15:00',
-                'created_at' => '2024-11-10 09:30:00',
-                'updated_at' => '2024-11-22 18:15:00',
-                'design' => [
-                    'foreground_color' => '#000000',
-                    'background_color' => '#FFFFFF',
-                    'pattern' => 'dots',
-                    'error_correction' => 'Q',
-                ],
-                'customization' => null,
-                'user_id' => 1,
-            ],
-        ],
-        'conversionFunnel' => [
-            ['label' => 'Total Scans', 'value' => 1250],
-            ['label' => 'Unique Visitors', 'value' => 980],
-            ['label' => 'Landing Page Views', 'value' => 640],
-            ['label' => 'Signups', 'value' => 210],
-        ],
-    ]);
-})->middleware(['auth', 'verified'])->name('analytics');
+Route::get('/analytics/export', [App\Http\Controllers\AnalyticsController::class, 'export'])
+    ->middleware(['auth', 'verified'])
+    ->name('analytics.export');
+
+Route::get('/analytics', [App\Http\Controllers\AnalyticsController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('analytics');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/admin', function () {
@@ -277,6 +203,11 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    // User Preferences
+    Route::get('/settings/preferences', [App\Http\Controllers\UserPreferencesController::class, 'edit'])->name('preferences.edit');
+    Route::patch('/settings/preferences', [App\Http\Controllers\UserPreferencesController::class, 'update'])->name('preferences.update');
+
+
     // Team Management
     Route::get('/team', [App\Http\Controllers\TeamController::class, 'index'])->name('team.index');
     Route::get('/team/members/{user}', [App\Http\Controllers\TeamController::class, 'show'])->name('team.show');
@@ -290,6 +221,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/design/brand-kits', [App\Http\Controllers\DesignController::class, 'storeBrandKit'])->name('design.brand-kits.store');
     Route::delete('/design/brand-kits/{id}', [App\Http\Controllers\DesignController::class, 'deleteBrandKit'])->name('design.brand-kits.destroy');
     Route::post('/design/templates', [App\Http\Controllers\DesignController::class, 'storeTemplate'])->name('design.templates.store');
+    
+    // Shape Gallery
+    Route::get('/design/shapes', [App\Http\Controllers\ShapeGalleryController::class, 'index'])->name('design.shapes');
+    
+    // Renderer Test
+    Route::get('/design/renderer-test', [App\Http\Controllers\RendererTestController::class, 'index'])->name('design.renderer-test');
 });
 
 require __DIR__.'/auth.php';

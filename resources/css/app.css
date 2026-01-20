@@ -95,3 +95,45 @@
         letter-spacing: var(--tracking-normal);
     }
 }
+
+/* Compact Mode Styles */
+.compact-mode {
+    /* Reduce card padding */
+    --card-padding: 1rem;
+    --card-padding-normal: 1.5rem;
+    
+    /* Reduce spacing between elements */
+    --spacing-section: 1.5rem;
+    --spacing-section-normal: 2rem;
+    
+    /* Tighter line heights */
+    --line-height-compact: 1.4;
+    
+    /* Reduce gaps in grids */
+    --grid-gap: 1rem;
+    --grid-gap-normal: 1.5rem;
+}
+
+.compact-mode .qr-card .p-6 {
+    @apply p-4;
+}
+
+.compact-mode .qr-card .gap-4 {
+    @apply gap-3;
+}
+
+.compact-mode .qr-preview {
+    @apply h-24 w-24;
+}
+
+.compact-mode .analytics-card {
+    @apply p-4;
+}
+
+.compact-mode .sidebar-nav-item {
+    @apply py-1.5;
+}
+
+.compact-mode .stat-card {
+    @apply p-4;
+}

@@ -20,9 +20,12 @@ createInertiaApp({
         ),
     setup({ el, App, props }) {
         const root = createRoot(el);
+        
+        // @ts-ignore
+        const userTheme = props.initialPage?.props?.auth?.user?.settings?.theme || 'system';
 
         root.render(
-            <ThemeProvider defaultTheme="light" storageKey="qr-platform-theme">
+            <ThemeProvider defaultTheme="system" initialTheme={userTheme} storageKey="qr-platform-theme">
                 <App {...props} />
             </ThemeProvider>
         );

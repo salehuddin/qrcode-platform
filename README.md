@@ -12,56 +12,61 @@
 
 ### 🎨 Dynamic QR Code Management
 
--   **Editable Links**: Update destination URLs without changing QR codes
--   **Multiple QR Types**: URL, vCard, WiFi, SMS, Email, Phone, Location, Events
--   **Custom Styling**: Colors, patterns, gradients, and logo embedding
--   **Export Formats**: PNG, SVG, PDF, EPS with vector support
+- **Editable Links**: Update destination URLs without changing QR codes
+- **Multiple QR Types**: URL, vCard, WiFi, SMS, Email, Phone, Location, Events
+- **Custom Styling**: Colors, patterns, gradients, and logo embedding
+- **Export Formats**: PNG, SVG, PDF, EPS with vector support
 
 ### 📊 Analytics & Tracking
 
--   **Real-time Analytics**: Scan tracking with geographic data
--   **Device Insights**: Browser, OS, and device type detection
--   **Performance Metrics**: Unique vs total scans, engagement rates
--   **Google Analytics Integration**: Enhanced tracking capabilities
+- **Real-time Analytics**: Scan tracking with geographic data and time-series visualization
+- **Device Insights**: Browser, OS, and device type detection with breakdown charts
+- **Performance Metrics**: Unique vs total scans, peak hours, location breakdown
+- **Advanced Filtering**: Date range selection, QR code filtering, custom periods
+- **CSV Export**: Export analytics data for external analysis
+- **Individual QR Analytics**: Detailed scan timeline, referrers, and recent scans log
 
 ### 👥 Team Collaboration
 
--   **Role-Based Access**: Admin, Editor, Viewer permissions
--   **Multi-tenant Architecture**: Organization-based data isolation
--   **Team Management**: Invite members, manage permissions
--   **Brand Consistency**: Template locking and brand kits
+- **Role-Based Access**: Admin, Editor, Viewer permissions with granular control
+- **Multi-tenant Architecture**: Organization-based data isolation
+- **Team Management**: Invite members, manage permissions, view activity
+- **Brand Consistency**: Template locking, brand kits, and design presets
+- **Folder Organization**: Hierarchical folder structure for QR code management
+- **Tag System**: Flexible tagging for categorization and filtering
 
 ### 🔒 Enterprise Features
 
--   **Custom Domains**: Use your own branded short domains
--   **API Access**: Programmatic QR code generation and management
--   **Advanced Security**: Two-factor authentication, audit logs
--   **Subscription Management**: Multiple pricing tiers with usage limits
+- **Custom Domains**: Use your own branded short domains (planned)
+- **API Access**: Programmatic QR code generation and management (planned)
+- **Advanced Security**: Role-based access control, activity audit logs
+- **User Preferences**: Persistent theme, font size, compact mode, analytics defaults
+- **Subscription Management**: Multiple pricing tiers with usage limits (planned)
 
 ## 🚀 Tech Stack
 
 ### Backend
 
--   **Laravel 10+** - PHP web framework with Eloquent ORM
--   **Laravel Sanctum** - SPA authentication
--   **Laravel Queues** - Background job processing
--   **MySQL/PostgreSQL** - Primary database
--   **Redis** - Caching and session storage
+- **Laravel 10+** - PHP web framework with Eloquent ORM
+- **Laravel Sanctum** - SPA authentication
+- **Laravel Queues** - Background job processing
+- **MySQL/PostgreSQL** - Primary database
+- **Redis** - Caching and session storage
 
 ### Frontend
 
--   **React 18** - Component-based UI framework
--   **TypeScript** - Type safety and better DX
--   **Inertia.js** - Server-side rendering with React
--   **Tailwind CSS** - Utility-first CSS framework
--   **Shadcn/ui** - Modern, accessible component library
--   **Vite** - Fast development build tool
+- **React 18** - Component-based UI framework
+- **TypeScript** - Type safety and better DX
+- **Inertia.js** - Server-side rendering with React
+- **Tailwind CSS** - Utility-first CSS framework
+- **Shadcn/ui** - Modern, accessible component library
+- **Vite** - Fast development build tool
 
 ### QR Code & Image Processing
 
--   **endroid/qr-code** - PHP QR code generation library
--   **Intervention Image** - Image manipulation for logos
--   **SVG Support** - Scalable vector graphics for print quality
+- **endroid/qr-code** - PHP QR code generation library
+- **Intervention Image** - Image manipulation for logos
+- **SVG Support** - Scalable vector graphics for print quality
 
 ## 📋 Project Structure
 
@@ -87,11 +92,11 @@ qrcode-platform/
 
 ### Prerequisites
 
--   **PHP 8.2+** with required extensions
--   **Composer** for PHP dependency management
--   **Node.js 18+** and npm for frontend assets
--   **MySQL/PostgreSQL** database
--   **Redis** (optional, for caching)
+- **PHP 8.2+** with required extensions
+- **Composer** for PHP dependency management
+- **Node.js 18+** and npm for frontend assets
+- **MySQL/PostgreSQL** database
+- **Redis** (optional, for caching)
 
 ### Quick Start with Laragon (Windows)
 
@@ -122,7 +127,6 @@ qrcode-platform/
     ```
 
 5. **Configure database**
-
     - Update `.env` with your database credentials
     - Create database: `qrcode_platform`
 
@@ -153,46 +157,65 @@ qrcode-platform/
 
 ## 📚 Documentation
 
--   **[PRD.md](PRD.md)** - Complete product requirements and technical specifications
--   **[PAGES_PLAN.md](PAGES_PLAN.md)** - Detailed pages structure and implementation plan
--   **API Documentation** - Coming soon with Laravel API resources
+- **[PRD.md](PRD.md)** - Complete product requirements and technical specifications
+- **[PAGES_PLAN.md](PAGES_PLAN.md)** - Detailed pages structure and implementation plan
+- **[CUSTOM_QR_SHAPES_README.md](CUSTOM_QR_SHAPES_README.md)** - Custom QR shapes feature (on hold for future implementation)
+- **API Documentation** - Coming soon with Laravel API resources
 
 ## 🎯 Roadmap
 
 ### Phase 1: Foundation (Week 1-2) ✅
 
--   [x] Laravel + React + TypeScript setup
--   [x] Shadcn/ui integration
--   [x] Authentication system (Laravel Breeze)
--   [x] Basic project structure
--   [x] Core page creation (Dashboard, QR List, Create QR)
+- [x] Laravel + React + TypeScript setup
+- [x] Shadcn/ui integration
+- [x] Authentication system (Laravel Breeze)
+- [x] Basic project structure
+- [x] Core page creation (Dashboard, QR List, Create QR)
+- [x] Public home page with QR generator
 
 ### Phase 2: Core Features (Week 3-4) ✅
 
--   [x] QR code generation engine
--   [x] Advanced customization (colors, logos, gradients, patterns)
--   [x] URL shortening service (Dynamic QRs)
--   [x] Analytics foundation (Mock data &amp; Routes)
+- [x] QR code generation engine
+- [x] Advanced customization (colors, logos, gradients, patterns)
+- [x] URL shortening service (Dynamic QRs)
+- [x] Analytics foundation (Mock data &amp; Routes)
 
 ### Phase 3: Advanced Features (Week 5-6) ✅
 
--   [x] Advanced design tools (Design Studio)
--   [x] Team management (Organizations, Invitations, Roles)
--   [x] Template system (Admin template management)
--   [x] Brand Kits (Reusable design presets)
--   [x] Folder organization system
--   [x] Tag management system
--   [x] QR code soft deletes (Trash functionality)
+- [x] Advanced design tools (Design Studio)
+- [x] Team management (Organizations, Invitations, Roles)
+- [x] Template system (Admin template management)
+- [x] Brand Kits (Reusable design presets)
+- [x] Folder organization system
+- [x] Tag management system
+- [x] QR code soft deletes (Trash functionality)
 
-### Phase 4: Enterprise &amp; Polish (Week 7-8) 🚧
+### Phase 4: Enterprise & Polish (Week 7-8) ✅
 
--   [x] Admin dashboard
--   [x] Admin user management
--   [x] Admin template management
--   [ ] Export functionality (Vector formats)
--   [ ] Subscription system
--   [ ] API development
--   [ ] Performance optimization
+- [x] Admin dashboard
+- [x] Admin user management
+- [x] Admin template management
+- [x] Export functionality (Vector formats: PNG, SVG, PDF, EPS)
+- [x] Real-time analytics with scan tracking
+- [x] Advanced analytics filtering (date range, QR code selection)
+- [x] CSV export for analytics data
+- [x] User preferences (theme, font size, compact mode, analytics defaults)
+- [x] Activity logging (QR codes and user actions)
+- [x] Database performance optimization (indexed analytics queries)
+
+### Phase 5: API & Integrations (Future) 🔮
+
+- [ ] RESTful API for QR code management
+- [ ] Subscription system with Stripe integration
+- [ ] Custom domain support
+- [ ] Webhook integrations
+- [ ] Third-party analytics integrations
+- [ ] **Custom QR Shapes** (Prototype completed - see CUSTOM_QR_SHAPES_README.md)
+    - Custom SVG shape library (10 body, 5 eye frame, 5 eye ball shapes)
+    - Visual shape selector component
+    - Custom QR renderer with direct matrix generation
+    - Shape gallery for preview
+    - On hold pending rendering quality improvements
 
 ## 🤝 Contributing
 
@@ -204,11 +227,11 @@ qrcode-platform/
 
 ### Development Guidelines
 
--   Follow PSR-12 coding standards for PHP
--   Use TypeScript for all React components
--   Follow conventional commits for commit messages
--   Write tests for new features
--   Update documentation for API changes
+- Follow PSR-12 coding standards for PHP
+- Use TypeScript for all React components
+- Follow conventional commits for commit messages
+- Write tests for new features
+- Update documentation for API changes
 
 ## 📝 License
 
@@ -216,11 +239,11 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
--   **Laravel** - The PHP framework for web artisans
--   **React** - A JavaScript library for building user interfaces
--   **Shadcn/ui** - Beautifully designed components
--   **Tailwind CSS** - A utility-first CSS framework
--   **endroid/qr-code** - QR code generation for PHP
+- **Laravel** - The PHP framework for web artisans
+- **React** - A JavaScript library for building user interfaces
+- **Shadcn/ui** - Beautifully designed components
+- **Tailwind CSS** - A utility-first CSS framework
+- **endroid/qr-code** - QR code generation for PHP
 
 ---
 

@@ -63,6 +63,7 @@ class QrCodeController extends Controller
         return Inertia::render('QRCode/Create', [
             'folders' => $organization ? $this->folderService->getFolderTree($organization) : [],
             'tags' => $organization ? $this->tagService->getTags($organization) : [],
+            'brandKits' => $organization ? \App\Models\BrandKit::where('organization_id', $organization->id)->get() : [],
         ]);
     }
 
@@ -95,7 +96,7 @@ class QrCodeController extends Controller
             $qrCode->tags()->sync($validated['tags']);
         }
 
-        return redirect()->route('qr-codes.show', $qrCode->id);
+        return redirect()->route('qr-codes.show', $qrCode->id)->with('success', 'QR Code created successfully!');
     }
 
     public function show(QrCode $qrCode)
@@ -144,6 +145,7 @@ class QrCodeController extends Controller
             'qrCode' => $qrCode,
             'folders' => $organization ? $this->folderService->getFolderTree($organization) : [],
             'tags' => $organization ? $this->tagService->getTags($organization) : [],
+            'brandKits' => $organization ? \App\Models\BrandKit::where('organization_id', $organization->id)->get() : [],
         ]);
     }
 
@@ -176,7 +178,7 @@ class QrCodeController extends Controller
             $qrCode->tags()->sync($validated['tags']);
         }
 
-        return redirect()->route('qr-codes.show', $qrCode->id);
+        return redirect()->route('qr-codes.show', $qrCode->id)->with('success', 'QR Code updated successfully!');
     }
 
     public function destroy(QrCode $qrCode)
@@ -199,7 +201,7 @@ class QrCodeController extends Controller
     /**
      * Show analytics for a specific QR code.
      */
-    public function analytics(QrCode $qrCode)
+    public function analytics(Request $request, QrCode $qrCode)
     {
         $user = Auth::user();
         $organization = $user->currentOrganization();
@@ -209,17 +211,33 @@ class QrCodeController extends Controller
                 abort(403);
             }
         }
+        
+        $startDate = $request->input('start_date') ? \Carbon\Carbon::parse($request->input('start_date')) : \Carbon\Carbon::now()->subDays(29);
+        $endDate = $request->input('end_date') ? \Carbon\Carbon::parse($request->input('end_date')) : \Carbon\Carbon::now();
+        $days = $startDate->diffInDays($endDate) + 1; // Approximate for now, or pass dates directly if service supports it
 
         $analyticsService = new \App\Services\AnalyticsService();
 
+        // Pass dates to service methods if they support it, or modify service to support it. 
+        // For now, assuming service uses 'days' or we need to update service too.
+        // Let's assume we need to update service or pass a date range.
+        // The current service likely takes $days. We should check AnalyticsService.php.
+        // But for now, let's pass the raw values to view and let service handle default 'days' if implied.
+        // Actually, to fully support date range in individual analytics, I should update AnalyticsService signatures or use a different approach.
+        // For this step, I will stick to what QrCodeController passes.
+        
         return Inertia::render('Analytics/QRCodeAnalytics', [
             'qrcode' => $qrCode,
-            'scansOverTime' => $analyticsService->getScansOverTime($qrCode),
-            'deviceBreakdown' => $analyticsService->getDeviceBreakdown($qrCode),
-            'locationBreakdown' => $analyticsService->getLocationBreakdown($qrCode),
-            'referrers' => $analyticsService->getReferrers($qrCode),
-            'peakHours' => $analyticsService->getPeakHours($qrCode),
-            'recentScans' => $analyticsService->getRecentScans($qrCode),
+            'scansOverTime' => $analyticsService->getScansOverTime($qrCode, $startDate, $endDate),
+            'deviceBreakdown' => $analyticsService->getDeviceBreakdown($qrCode, $startDate, $endDate),
+            'locationBreakdown' => $analyticsService->getLocationBreakdown($qrCode, 4, $startDate, $endDate),
+            'referrers' => $analyticsService->getReferrers($qrCode, $startDate, $endDate),
+            'peakHours' => $analyticsService->getPeakHours($qrCode, $startDate, $endDate),
+            'recentScans' => $analyticsService->getRecentScans($qrCode), // Recent scans usually just list latest, but maybe could filter too. Leaving as is for log.
+            'filters' => [
+                'start_date' => $startDate->format('Y-m-d'),
+                'end_date' => $endDate->format('Y-m-d'),
+            ],
         ]);
     }
 

@@ -11,24 +11,32 @@ class AnalyticsService
     /**
      * Get scans over time for the last 7 days.
      */
-    public function getScansOverTime(QrCode $qrCode, int $days = 7): array
+    /**
+     * Get scans over time for a date range.
+     */
+    public function getScansOverTime(QrCode $qrCode, $startDate = null, $endDate = null): array
     {
+        $start = $startDate ? \Carbon\Carbon::parse($startDate) : now()->subDays(29);
+        $end = $endDate ? \Carbon\Carbon::parse($endDate) : now();
+
         $scans = $qrCode->scans()
-            ->where('scanned_at', '>=', now()->subDays($days))
+            ->whereBetween('scanned_at', [$start->startOfDay(), $end->endOfDay()])
             ->select(DB::raw('DATE(scanned_at) as date'), DB::raw('COUNT(*) as count'))
             ->groupBy('date')
             ->orderBy('date')
             ->get();
 
-        // Fill in missing days with zero counts
+        // Fill in missing dates
         $result = [];
-        for ($i = $days - 1; $i >= 0; $i--) {
-            $date = now()->subDays($i)->format('Y-m-d');
-            $dayLabel = now()->subDays($i)->format('D');
+        $period = \Carbon\CarbonPeriod::create($start, $end);
+
+        foreach ($period as $date) {
+            $dateString = $date->format('Y-m-d');
+            $isoDate = $date->format('Y-m-d'); // Keep distinct if needed, but here simple format matches DB
             
-            $scan = $scans->firstWhere('date', $date);
+            $scan = $scans->firstWhere('date', $dateString);
             $result[] = [
-                'label' => $dayLabel,
+                'label' => $date->format('M j'),
                 'value' => $scan ? $scan->count : 0,
             ];
         }
@@ -39,14 +47,23 @@ class AnalyticsService
     /**
      * Get device breakdown.
      */
-    public function getDeviceBreakdown(QrCode $qrCode): array
+    public function getDeviceBreakdown(QrCode $qrCode, $startDate = null, $endDate = null): array
     {
-        $total = $qrCode->scans()->count();
+        $query = $qrCode->scans();
+        
+        if ($startDate && $endDate) {
+            $query->whereBetween('scanned_at', [
+                \Carbon\Carbon::parse($startDate)->startOfDay(), 
+                \Carbon\Carbon::parse($endDate)->endOfDay()
+            ]);
+        }
+        
+        $total = (clone $query)->count();
         if ($total === 0) {
             return [];
         }
 
-        $devices = $qrCode->scans()
+        $devices = $query
             ->select('device_type', DB::raw('COUNT(*) as count'))
             ->groupBy('device_type')
             ->get();
@@ -63,15 +80,23 @@ class AnalyticsService
     /**
      * Get location breakdown.
      */
-    public function getLocationBreakdown(QrCode $qrCode, int $limit = 4): array
+    public function getLocationBreakdown(QrCode $qrCode, int $limit = 4, $startDate = null, $endDate = null): array
     {
-        $total = $qrCode->scans()->count();
+        $query = $qrCode->scans()->whereNotNull('country');
+
+        if ($startDate && $endDate) {
+            $query->whereBetween('scanned_at', [
+                \Carbon\Carbon::parse($startDate)->startOfDay(), 
+                \Carbon\Carbon::parse($endDate)->endOfDay()
+            ]);
+        }
+
+        $total = (clone $query)->count();
         if ($total === 0) {
             return [];
         }
 
-        $locations = $qrCode->scans()
-            ->whereNotNull('country')
+        $locations = $query
             ->select('country', DB::raw('COUNT(*) as count'))
             ->groupBy('country')
             ->orderByDesc('count')
@@ -90,14 +115,23 @@ class AnalyticsService
     /**
      * Get referrer statistics.
      */
-    public function getReferrers(QrCode $qrCode): array
+    public function getReferrers(QrCode $qrCode, $startDate = null, $endDate = null): array
     {
-        $total = $qrCode->scans()->count();
+        $query = $qrCode->scans();
+
+        if ($startDate && $endDate) {
+            $query->whereBetween('scanned_at', [
+                \Carbon\Carbon::parse($startDate)->startOfDay(), 
+                \Carbon\Carbon::parse($endDate)->endOfDay()
+            ]);
+        }
+
+        $total = (clone $query)->count();
         if ($total === 0) {
             return [];
         }
 
-        $referrers = $qrCode->scans()
+        $referrers = $query
             ->select(
                 DB::raw('CASE 
                     WHEN referrer IS NULL OR referrer = "" THEN "Direct / QR" 
@@ -122,9 +156,18 @@ class AnalyticsService
     /**
      * Get peak scanning hours.
      */
-    public function getPeakHours(QrCode $qrCode): array
+    public function getPeakHours(QrCode $qrCode, $startDate = null, $endDate = null): array
     {
-        $scans = $qrCode->scans()
+        $query = $qrCode->scans();
+
+        if ($startDate && $endDate) {
+            $query->whereBetween('scanned_at', [
+                \Carbon\Carbon::parse($startDate)->startOfDay(), 
+                \Carbon\Carbon::parse($endDate)->endOfDay()
+            ]);
+        }
+
+        $scans = $query
             ->select(
                 DB::raw('HOUR(scanned_at) as hour'),
                 DB::raw('COUNT(*) as count')

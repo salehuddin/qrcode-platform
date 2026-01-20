@@ -56,9 +56,8 @@ export function QRCodePreview({ data, customization, showDownloadButtons = true 
                 height: PREVIEW_SIZE,
                 data: data,
                 dotsOptions: {
-                    color: customization.dotsColor || '#000000',
+                    ...(gradient ? { gradient: gradient as any } : { color: customization.dotsColor || '#000000' }),
                     type: (customization.dotsType || 'square') as any,
-                    ...(gradient ? { gradient: gradient as any } : {}),
                 },
                 backgroundOptions: {
                     color: customization.backgroundColor || '#ffffff',

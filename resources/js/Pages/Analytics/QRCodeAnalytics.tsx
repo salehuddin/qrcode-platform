@@ -1,9 +1,14 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/Components/ui/card';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
+import { Input } from '@/Components/ui/input';
+import { Label } from '@/Components/ui/label';
 import type { PageProps, QRCode, ScanEvent } from '@/types';
+import { useState, useEffect } from 'react';
+import { Download, Filter, Calendar as CalendarIcon, X } from 'lucide-react';
 
 interface TimeSeriesPoint {
     label: string;
@@ -30,6 +35,10 @@ interface QRCodeAnalyticsProps extends PageProps {
     referrers: ReferrerStat[];
     recentScans: ScanEvent[];
     peakHours: TimeSeriesPoint[];
+    filters: {
+        start_date: string;
+        end_date: string;
+    };
 }
 
 export default function QRCodeAnalytics({
@@ -40,31 +49,104 @@ export default function QRCodeAnalytics({
     referrers,
     recentScans,
     peakHours,
+    filters,
 }: QRCodeAnalyticsProps) {
     const maxTimelineValue = Math.max(...scansOverTime.map((p) => p.value), 1);
     const maxPeakHourValue = Math.max(...peakHours.map((p) => p.value), 1);
 
+    const [startDate, setStartDate] = useState(filters.start_date);
+    const [endDate, setEndDate] = useState(filters.end_date);
+
+    // Debounce filter application
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            if (startDate !== filters.start_date || endDate !== filters.end_date) {
+                applyFilters();
+            }
+        }, 800);
+
+        return () => clearTimeout(timeoutId);
+    }, [startDate, endDate]);
+
+    const applyFilters = () => {
+        router.get(
+            route('qr-codes.analytics', qrcode.id),
+            {
+                start_date: startDate,
+                end_date: endDate,
+            },
+            {
+                preserveState: true,
+                preserveScroll: true,
+                replace: true,
+            }
+        );
+    };
+
+    const handlePresetChange = (value: string) => {
+        const end = new Date();
+        let start = new Date();
+
+        switch (value) {
+            case '7days':
+                start.setDate(end.getDate() - 7);
+                break;
+            case '30days':
+                start.setDate(end.getDate() - 29); // 30 days inclusive
+                break;
+            case 'month':
+                start = new Date(end.getFullYear(), end.getMonth(), 1);
+                break;
+            case 'year':
+                start.setFullYear(end.getFullYear() - 1);
+                break;
+        }
+
+        setStartDate(start.toISOString().split('T')[0]);
+        setEndDate(end.toISOString().split('T')[0]);
+    };
+
+    const clearFilters = () => {
+         const end = new Date();
+         const start = new Date();
+         start.setDate(end.getDate() - 29);
+         
+         setStartDate(start.toISOString().split('T')[0]);
+         setEndDate(end.toISOString().split('T')[0]);
+    };
+
+    const handleExport = () => {
+        const params = new URLSearchParams({
+            start_date: startDate,
+            end_date: endDate,
+            qr_code_id: qrcode.id.toString()
+        });
+        window.location.href = route('analytics.export') + '?' + params.toString();
+    };
+
     return (
         <AuthenticatedLayout
             header={
-                <div>
-                    <div className="flex items-center gap-2">
-                        <h2 className="text-xl font-semibold leading-tight text-foreground">
-                            Analytics for {qrcode.name}
-                        </h2>
-                        <Badge variant={qrcode.is_active ? 'default' : 'secondary'}>
-                            {qrcode.is_active ? 'Active' : 'Inactive'}
-                        </Badge>
-                    </div>
-                    <div className="mt-1 space-y-1">
-                        <p className="text-sm text-gray-600">
-                            Detailed scan analytics for this QR code
-                        </p>
-                        {qrcode.mode === 'dynamic' && qrcode.permalink && (
-                            <p className="text-xs font-mono text-gray-500">
-                                {qrcode.permalink}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <div className="flex items-center gap-2">
+                            <h2 className="text-xl font-semibold leading-tight text-foreground">
+                                Analytics for {qrcode.name}
+                            </h2>
+                            <Badge variant={qrcode.is_active ? 'default' : 'secondary'}>
+                                {qrcode.is_active ? 'Active' : 'Inactive'}
+                            </Badge>
+                        </div>
+                        <div className="mt-1 space-y-1">
+                            <p className="text-sm text-gray-600">
+                                Detailed scan analytics for this QR code
                             </p>
-                        )}
+                            {qrcode.mode === 'dynamic' && qrcode.permalink && (
+                                <p className="text-xs font-mono text-gray-500">
+                                    {qrcode.permalink}
+                                </p>
+                            )}
+                        </div>
                     </div>
                 </div>
             }
@@ -82,10 +164,66 @@ export default function QRCodeAnalytics({
                                 </Link>
                             </Button>
                         </div>
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" onClick={handleExport}>
+                            <Download className="w-4 h-4 mr-2" />
                             Export CSV
                         </Button>
                     </div>
+
+                    {/* Filters Bar */}
+                    <Card className="bg-muted/30">
+                        <CardContent className="p-4">
+                            <div className="flex flex-col md:flex-row gap-4 items-end flex-wrap">
+                                <div className="space-y-2">
+                                    <Label className="text-xs">Quick Range</Label>
+                                    <Select onValueChange={handlePresetChange} defaultValue="30days">
+                                        <SelectTrigger className="w-[140px] h-9 bg-background">
+                                            <SelectValue placeholder="Select range" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="7days">Last 7 Days</SelectItem>
+                                            <SelectItem value="30days">Last 30 Days</SelectItem>
+                                            <SelectItem value="month">This Month</SelectItem>
+                                            <SelectItem value="year">Last Year</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label className="text-xs">From Date</Label>
+                                    <div className="relative">
+                                        <CalendarIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
+                                        <Input 
+                                            type="date" 
+                                            value={startDate} 
+                                            onChange={(e) => setStartDate(e.target.value)}
+                                            className="w-[140px] pl-9 h-9 bg-background"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label className="text-xs">To Date</Label>
+                                    <div className="relative">
+                                        <CalendarIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
+                                        <Input 
+                                            type="date" 
+                                            value={endDate} 
+                                            onChange={(e) => setEndDate(e.target.value)}
+                                            className="w-[140px] pl-9 h-9 bg-background"
+                                        />
+                                    </div>
+                                </div>
+                                
+                                <div className="pb-0.5">
+                                     <Button variant="ghost" size="sm" onClick={clearFilters} className="h-9 px-2 text-muted-foreground hover:text-foreground">
+                                        <X className="w-4 h-4 mr-1" />
+                                        Reset
+                                     </Button>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
                     
                     {/* Summary cards */}
                     <div className="grid gap-4 md:grid-cols-3">
@@ -131,15 +269,18 @@ export default function QRCodeAnalytics({
                                         {scansOverTime.map((point) => (
                                             <div
                                                 key={point.label}
-                                                className="flex flex-1 flex-col items-center gap-1"
+                                                className="flex flex-1 flex-col items-center gap-1 group"
                                             >
-                                                <div
-                                                    className="w-full rounded-t bg-primary/70"
-                                                    style={{
-                                                        height: `${(point.value / maxTimelineValue) * 100}%`,
-                                                    }}
-                                                />
-                                                <span className="text-[10px] text-muted-foreground">
+                                                <div className="relative w-full flex justify-center">
+                                                    <div
+                                                        className="w-full max-w-[40px] min-w-[4px] rounded-t bg-primary/70 group-hover:bg-primary transition-colors"
+                                                        style={{
+                                                            height: `${maxTimelineValue > 0 ? (point.value / maxTimelineValue) * 100 : 0}%`,
+                                                            minHeight: point.value > 0 ? '4px' : '0'
+                                                        }}
+                                                    />
+                                                </div>
+                                                <span className="text-[10px] text-muted-foreground truncate w-full text-center">
                                                     {point.label}
                                                 </span>
                                             </div>
