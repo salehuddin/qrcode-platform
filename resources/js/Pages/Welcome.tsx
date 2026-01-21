@@ -359,12 +359,12 @@ export default function Welcome({ auth }: PageProps) {
                                 {/* CTA Card */}
                                 <Card className="bg-primary text-primary-foreground">
                                     <CardContent className="p-6">
-                                        <h3 className="text-lg font-semibold mb-2">Want More Features?</h3>
+                                        <h3 className="text-lg font-semibold mb-2">Light Up 7 Staff?</h3>
                                         <p className="text-sm mb-4 opacity-90">
-                                            Sign up for free to save your QR codes, track scans, and access dynamic QR codes that you can edit anytime!
+                                            Log in to access advanced features: save QR codes, track scans, manage folders, and collaborate with your team!
                                         </p>
                                         <Button variant="secondary" className="w-full" asChild>
-                                            <a href="/register">Create Free Account</a>
+                                            <a href="/login">Staff Login</a>
                                         </Button>
                                     </CardContent>
                                 </Card>

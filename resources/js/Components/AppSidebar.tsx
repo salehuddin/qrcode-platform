@@ -11,7 +11,9 @@ import {
     Sun,
     LogOut,
     User,
-    Palette
+    Palette,
+    Mail,
+    Bell
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -42,6 +44,7 @@ interface AppSidebarProps {
     user: {
         name: string;
         email: string;
+        is_platform_admin?: boolean;
     };
 }
 
@@ -91,7 +94,19 @@ export function AppSidebar({ user }: AppSidebarProps) {
                     title: 'Teams & Members',
                     href: '/team',
                     active: route().current('team.index'),
-                }
+                },
+                ...(user.is_platform_admin ? [
+                    {
+                        title: 'Email Settings',
+                        href: '/admin/email-settings',
+                        active: route().current('admin.email-settings'),
+                    },
+                    {
+                        title: 'Notifications',
+                        href: '/admin/notification-settings',
+                        active: route().current('admin.notification-settings'),
+                    }
+                ] : [])
             ]
         },
     ];
@@ -293,6 +308,12 @@ export function AppSidebar({ user }: AppSidebarProps) {
                                 <Link href="/settings/preferences" className="cursor-pointer">
                                     <Settings className="mr-2 h-4 w-4" />
                                     <span>Settings</span>
+                                </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                                <Link href="/settings/notifications" className="cursor-pointer">
+                                    <Bell className="mr-2 h-4 w-4" />
+                                    <span>Notifications</span>
                                 </Link>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />

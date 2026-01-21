@@ -75,6 +75,10 @@ class InvitationService
         // Mark invitation as accepted
         $invitation->update(['accepted_at' => now()]);
 
+        // Send welcome email
+        $notificationService = app(\App\Services\NotificationService::class);
+        $notificationService->sendWelcomeEmail($user);
+
         return $organization;
     }
 

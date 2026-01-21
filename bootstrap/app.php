@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'org.context' => \App\Http\Middleware\EnsureOrganizationContext::class,
             'org.role' => \App\Http\Middleware\CheckOrganizationRole::class,
+            'platform.admin' => \App\Http\Middleware\IsPlatformAdmin::class,
         ]);
 
         $middleware->web(append: [

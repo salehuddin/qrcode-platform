@@ -9,12 +9,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
+    return Inertia::render('Welcome');
 });
 
 // Public redirect route for QR code permalinks
@@ -162,6 +157,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/admin/templates', [App\Http\Controllers\Admin\TemplateController::class, 'store'])->name('admin.templates.store');
     Route::delete('/admin/templates/{id}', [App\Http\Controllers\Admin\TemplateController::class, 'destroy'])->name('admin.templates.destroy');
 
+    // Admin Email & Notification Settings (Platform Admin Only)
+    Route::middleware(['platform.admin'])->group(function () {
+        // Admin Email Settings
+        Route::get('/admin/email-settings', [App\Http\Controllers\Admin\EmailSettingsController::class, 'index'])->name('admin.email-settings');
+        Route::put('/admin/email-settings', [App\Http\Controllers\Admin\EmailSettingsController::class, 'update'])->name('admin.email-settings.update');
+        Route::post('/admin/email-settings/test', [App\Http\Controllers\Admin\EmailSettingsController::class, 'test'])->name('admin.email-settings.test');
+
+        // Admin Notification Settings
+        Route::get('/admin/notification-settings', [App\Http\Controllers\Admin\NotificationSettingsController::class, 'index'])->name('admin.notification-settings');
+        Route::post('/admin/notification-settings/toggle', [App\Http\Controllers\Admin\NotificationSettingsController::class, 'toggle'])->name('admin.notification-settings.toggle');
+    });
+
 
     Route::get('/qr-codes/{qrCode}/analytics', [QRCodeController::class, 'analytics'])->name('qr-codes.analytics');
     
@@ -178,6 +185,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::prefix('settings')->name('settings.')->group(function () {
             Route::get('/organization', [App\Http\Controllers\OrganizationController::class, 'show'])->name('organization.show');
             Route::put('/organization', [App\Http\Controllers\OrganizationController::class, 'update'])->name('organization.update');
+            
+            // User Notification Preferences
+            Route::get('/notifications', [App\Http\Controllers\Settings\NotificationPreferencesController::class, 'index'])->name('notifications');
+            Route::put('/notifications', [App\Http\Controllers\Settings\NotificationPreferencesController::class, 'update'])->name('notifications.update');
         });
 
         Route::resource('folders', App\Http\Controllers\FolderController::class);

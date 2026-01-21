@@ -133,4 +133,12 @@ class User extends Authenticatable
 
         return in_array($role, ['owner', 'admin']);
     }
+
+    /**
+     * Get user's notification preferences.
+     */
+    public function notificationPreferences()
+    {
+        return $this->hasMany(UserNotificationPreference::class);
+    }
 }

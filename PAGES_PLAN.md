@@ -6,19 +6,19 @@ This document outlines all the pages needed for the QR Code Platform application
 
 ### 1. Landing Page (`/`) ✅ _Implemented_
 
-**Purpose**: Main marketing page to attract and convert visitors
+**Purpose**: Internal tool home page for Light Up 7 staff
 **Contents**:
 
-- Hero section with value proposition
-- Call-to-action buttons (Sign Up, Try Free)
+- Hero section with Light Up 7 branding
+- Staff login button
 - **Public QR Code Generator**:
     - QR type selection (URL, vCard, WiFi, SMS, Email, Phone, Location, Event)
     - Dynamic content forms based on selected type
     - Live QR code preview with customization
     - Design customization (colors, patterns, gradients, logo)
-    - Client-side download (PNG, SVG, JPEG, WebP)
+    - Client-side download (PNG, SVG)
     - No authentication required
-- Feature highlights (dynamic QR, analytics, customization)
+- Feature highlights (Analytics, Team Collaboration, Custom Designs)
 - Sticky preview card for better UX
 - Reuses existing form components from authenticated Create page
 
@@ -264,6 +264,22 @@ This document outlines all the pages needed for the QR Code Platform application
     - Default date range for analytics views
 - Persistent settings stored in database
 - Real-time application across the platform
+
+### 20.6. Notification Preferences (`/settings/notifications`) ✅ _Implemented_
+
+**Purpose**: Manage personal email notification preferences
+**Contents**:
+
+- **Notification Categories**:
+    - Account (Welcome, Password Reset)
+    - QR Code Analytics (Scan Alerts)
+    - Billing & Subscriptions (Payment Confirmation, Renewal, Failed)
+    - Team Activity (Member Joined, Removed, Role Changed)
+    - QR Code Management (Export Ready)
+- Individual toggle switches for each notification type
+- System-wide status indicators (admin-disabled notifications)
+- Disabled state for admin-controlled notifications
+- Real-time preference updates
 
 ### 21. Subscription & Billing (`/billing`)
 

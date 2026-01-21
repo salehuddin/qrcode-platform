@@ -1,8 +1,8 @@
 # 🎯 QRCode Platform
 
-**Dynamic QR Code & Link Management Platform** built with Laravel + React + TypeScript
+**Internal QR Code & Link Management Platform for Light Up 7** built with Laravel + React + TypeScript
 
-[![Laravel](https://img.shields.io/badge/Laravel-10+-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com)
+[![Laravel](https://img.shields.io/badge/Laravel-12+-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com)
 [![React](https://img.shields.io/badge/React-18+-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://reactjs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5+-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://typescriptlang.org)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com)
@@ -39,9 +39,19 @@
 
 - **Custom Domains**: Use your own branded short domains (planned)
 - **API Access**: Programmatic QR code generation and management (planned)
-- **Advanced Security**: Role-based access control, activity audit logs
+- **Advanced Security**: Role-based access control, activity audit logs, platform admin role
 - **User Preferences**: Persistent theme, font size, compact mode, analytics defaults
 - **Subscription Management**: Multiple pricing tiers with usage limits (planned)
+- **Email Notifications**: Comprehensive notification system with admin controls
+
+### 📧 Email & Notifications
+
+- **System-wide SMTP Configuration**: Platform admins can configure email settings (SMTP, SendGrid, Mailgun, SES)
+- **10 Notification Types**: Welcome, Password Reset, QR Scan Alerts, Billing, Team Activity, Export Ready
+- **Admin Controls**: Enable/disable notifications system-wide, test email configuration
+- **User Preferences**: Individual opt-in/opt-out for each notification type
+- **Queued Emails**: Asynchronous email sending for better performance
+- **Encrypted Credentials**: Secure storage of SMTP passwords
 
 ## 🚀 Tech Stack
 
@@ -203,7 +213,20 @@ qrcode-platform/
 - [x] Activity logging (QR codes and user actions)
 - [x] Database performance optimization (indexed analytics queries)
 
-### Phase 5: API & Integrations (Future) 🔮
+### Phase 5: Email & Notification System (Week 9-10) ✅
+
+- [x] Database schema for email settings and notification preferences
+- [x] Email configuration service (SMTP, SendGrid, Mailgun, SES support)
+- [x] Notification service with centralized logic
+- [x] 10 notification types (Welcome, Password Reset, QR Scan Alerts, Billing, Team Activity, Export Ready)
+- [x] Platform admin role and middleware
+- [x] Admin email settings page (SMTP configuration, test email)
+- [x] Admin notification settings page (system-wide toggles)
+- [x] User notification preferences page (individual opt-in/opt-out)
+- [x] Email templates (Blade Markdown with responsive design)
+- [x] Queued email sending for async processing
+
+### Phase 6: API & Integrations (Future) 🔮
 
 - [ ] RESTful API for QR code management
 - [ ] Subscription system with Stripe integration
