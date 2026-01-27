@@ -39,7 +39,7 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: ./public_html/ # CHANGE THIS to your actual path on server (e.g. /domains/qr.lightup7.com/public_html/)
+          server-dir: ./qr.lightup7.com/ # CHANGE THIS to your actual path on server (e.g. /domains/qr.lightup7.com/public_html/)
           exclude: |
             **/.git*
             **/.git*/**
