@@ -1,0 +1,52 @@
+name: Deploy to cPanel
+
+on:
+  push:
+    branches: [main] # Set this to your default branch (e.g. main or master)
+  workflow_dispatch:
+
+jobs:
+  web-deploy:
+    name: 🎉 Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🚚 Get latest code
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2" # Match your server version
+          extensions: mbstring, intl, pdo_mysql, zip, bcmath, exif
+
+      - name: 📦 Install Production Dependencies (Composer)
+        run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: 📦 Install NPM Dependencies
+        run: npm ci
+
+      - name: 🔨 Build Frontend Assets
+        run: npm run build
+
+      - name: 📂 Sync files (FTP)
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: ./public_html/ # CHANGE THIS to your actual path on server (e.g. /domains/qr.lightup7.com/public_html/)
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/tests/**
+            .env
+            .env.example
+            deploy.sh
+            README.md
+            storage/*.key
