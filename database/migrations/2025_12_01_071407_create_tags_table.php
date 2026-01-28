@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('organization_id')->constrained()->onDelete('cascade');
             $table->string('name');
-            $table->string('slug');
+            $table->string('slug', 191);
             $table->string('color')->nullable(); // Hex color for tag display
             $table->timestamps();
             

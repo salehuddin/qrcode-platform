@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\QrCode;
+use App\Models\QRCode;
 use App\Models\QrScan;
 use Illuminate\Http\Request;
 use Jenssegers\Agent\Agent;
@@ -15,7 +15,7 @@ class RedirectController extends Controller
     public function redirect(Request $request, string $permalink)
     {
         // Find the QR code by permalink
-        $qrCode = QrCode::where('permalink', $permalink)
+        $qrCode = QRCode::where('permalink', $permalink)
             ->where('is_active', true)
             ->firstOrFail();
 
@@ -33,7 +33,7 @@ class RedirectController extends Controller
     /**
      * Track scan event with device and location data.
      */
-    protected function trackScan(Request $request, QrCode $qrCode): void
+    protected function trackScan(Request $request, QRCode $qrCode): void
     {
         $agent = new Agent();
         $agent->setUserAgent($request->userAgent());

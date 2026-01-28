@@ -67,28 +67,33 @@ class RegisteredUserController extends Controller
                 // Log error but allow login? Or fail? 
                 // Currently ensuring user is at least created.
             }
-        } elseif (config('features.edition') === 'internal') {
-            // Internal Mode Fallback (First User/Setup)
-            $organization = Organization::first();
-            $role = 'admin';
-
-            if (!$organization) {
-                // First user becomes the Owner of the default organization
-                $organization = Organization::create([
-                    'name' => 'My Organization',
-                    'slug' => 'my-organization',
-                    'is_active' => true,
-                ]);
-                $role = 'owner';
+        } else {
+            // General Registration (No Invite Token)
+            // Automatically create a personal organization for the new user
+            
+            $orgName = $user->name . "'s Team";
+            $slug = \Illuminate\Support\Str::slug($orgName);
+            
+            // Ensure unique slug
+            $count = Organization::where('slug', 'like', "{$slug}%")->count();
+            if ($count > 0) {
+                $slug .= '-' . ($count + 1);
             }
 
-            // Attach user to the organization
-            if (!$organization->users()->where('user_id', $user->id)->exists()) {
-                $organization->users()->attach($user->id, [
-                    'role' => $role,
-                    'joined_at' => now(),
-                ]);
-            }
+            $organization = Organization::create([
+                'name' => $orgName,
+                'slug' => $slug,
+                'is_active' => true,
+            ]);
+
+            // Attach user as Owner
+            $organization->users()->attach($user->id, [
+                'role' => 'owner',
+                'joined_at' => now(),
+            ]);
+            
+            // Set session immediately so middleware passes
+            $request->session()->put('organization_id', $organization->id);
         }
 
         Auth::login($user);

@@ -32,6 +32,6 @@ class QrScan extends Model
      */
     public function qrCode(): BelongsTo
     {
-        return $this->belongsTo(QrCode::class, 'qr_code_id');
+        return $this->belongsTo(QRCode::class, 'qr_code_id');
     }
 }

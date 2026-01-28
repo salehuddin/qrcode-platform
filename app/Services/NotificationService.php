@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Models\User;
-use App\Models\QrCode;
+use App\Models\QRCode;
 use App\Models\NotificationSetting;
 use App\Models\UserNotificationPreference;
 use Illuminate\Support\Facades\Mail;
@@ -43,7 +43,7 @@ class NotificationService
     /**
      * Send QR scan alert notification
      */
-    public function sendScanAlert(QrCode $qrCode, int $scanCount): void
+    public function sendScanAlert(QRCode $qrCode, int $scanCount): void
     {
         $user = $qrCode->user;
         
@@ -85,7 +85,7 @@ class NotificationService
     /**
      * Send export ready notification
      */
-    public function sendExportReady(User $user, string $downloadUrl, QrCode $qrCode, string $format = 'PNG'): void
+    public function sendExportReady(User $user, string $downloadUrl, QRCode $qrCode, string $format = 'PNG'): void
     {
         if (!$this->canSendNotification($user, 'export_ready')) {
             return;

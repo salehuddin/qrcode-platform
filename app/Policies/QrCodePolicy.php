@@ -2,7 +2,7 @@
 
 namespace App\Policies;
 
-use App\Models\QrCode;
+use App\Models\QRCode;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
 
@@ -19,7 +19,7 @@ class QrCodePolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, QrCode $qrCode): bool
+    public function view(User $user, QRCode $qrCode): bool
     {
         return $user->organizations->contains($qrCode->organization_id);
     }
@@ -38,7 +38,7 @@ class QrCodePolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, QrCode $qrCode): bool
+    public function update(User $user, QRCode $qrCode): bool
     {
         $org = $qrCode->organization;
         if (!$org) return false; // Should not happen for org-owned QRs
@@ -52,7 +52,7 @@ class QrCodePolicy
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, QrCode $qrCode): bool
+    public function delete(User $user, QRCode $qrCode): bool
     {
         return $this->update($user, $qrCode);
     }

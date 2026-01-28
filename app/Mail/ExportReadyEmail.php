@@ -3,7 +3,7 @@
 namespace App\Mail;
 
 use App\Models\User;
-use App\Models\QrCode;
+use App\Models\QRCode;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -21,7 +21,7 @@ class ExportReadyEmail extends Mailable implements ShouldQueue
     public function __construct(
         public User $user,
         public string $downloadUrl,
-        public QrCode $qrCode,
+        public QRCode $qrCode,
         public string $format = 'PNG'
     ) {}
 

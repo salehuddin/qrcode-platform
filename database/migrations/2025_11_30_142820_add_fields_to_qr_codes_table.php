@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::table('qr_codes', function (Blueprint $table) {
             $table->text('description')->nullable()->after('name');
             $table->string('mode')->default('dynamic')->after('type'); // static, dynamic
-            $table->string('permalink')->nullable()->unique()->after('content'); // for dynamic QRs
+            $table->string('permalink', 191)->nullable()->unique()->after('content'); // for dynamic QRs
         });
     }
 

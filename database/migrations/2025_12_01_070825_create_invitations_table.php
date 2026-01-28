@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('organization_id')->constrained()->onDelete('cascade');
             $table->foreignId('invited_by')->constrained('users')->onDelete('cascade');
-            $table->string('email');
+            $table->string('email', 191);
             $table->enum('role', ['admin', 'editor', 'viewer'])->default('viewer');
-            $table->string('token')->unique();
+            $table->string('token', 191)->unique();
             $table->timestamp('expires_at');
             $table->timestamp('accepted_at')->nullable();
             $table->timestamps();

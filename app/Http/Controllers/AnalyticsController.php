@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\QrCode;
+use App\Models\QRCode;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -65,7 +65,7 @@ class AnalyticsController extends Controller
             })
             ->count();
             
-        $activeQrCodesQuery = QrCode::where('organization_id', $organization->id)
+        $activeQrCodesQuery = QRCode::where('organization_id', $organization->id)
             ->where('is_active', true);
         if ($qrCodeId) {
             $activeQrCodesQuery->where('id', $qrCodeId);
@@ -125,7 +125,7 @@ class AnalyticsController extends Controller
         // 5. Top QR Codes (skip if filtered by single QR)
         $topQrCodes = collect([]);
         if (!$qrCodeId) {
-            $topQrCodes = QrCode::where('organization_id', $organization->id)
+            $topQrCodes = QRCode::where('organization_id', $organization->id)
                 ->withCount(['scans' => function($q) use ($startDate, $endDate) {
                     $q->whereBetween('scanned_at', [$startDate->startOfDay(), $endDate->endOfDay()]);
                 }])
@@ -135,7 +135,7 @@ class AnalyticsController extends Controller
         }
 
         // Get list of QR codes for filter dropdown
-        $qrCodesList = QrCode::where('organization_id', $organization->id)
+        $qrCodesList = QRCode::where('organization_id', $organization->id)
             ->select('id', 'name')
             ->orderBy('name')
             ->get();

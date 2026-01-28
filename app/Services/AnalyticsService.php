@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Models\QrCode;
+use App\Models\QRCode;
 use App\Models\QrScan;
 use Illuminate\Support\Facades\DB;
 
@@ -14,7 +14,7 @@ class AnalyticsService
     /**
      * Get scans over time for a date range.
      */
-    public function getScansOverTime(QrCode $qrCode, $startDate = null, $endDate = null): array
+    public function getScansOverTime(QRCode $qrCode, $startDate = null, $endDate = null): array
     {
         $start = $startDate ? \Carbon\Carbon::parse($startDate) : now()->subDays(29);
         $end = $endDate ? \Carbon\Carbon::parse($endDate) : now();
@@ -47,7 +47,7 @@ class AnalyticsService
     /**
      * Get device breakdown.
      */
-    public function getDeviceBreakdown(QrCode $qrCode, $startDate = null, $endDate = null): array
+    public function getDeviceBreakdown(QRCode $qrCode, $startDate = null, $endDate = null): array
     {
         $query = $qrCode->scans();
         
@@ -80,7 +80,7 @@ class AnalyticsService
     /**
      * Get location breakdown.
      */
-    public function getLocationBreakdown(QrCode $qrCode, int $limit = 4, $startDate = null, $endDate = null): array
+    public function getLocationBreakdown(QRCode $qrCode, int $limit = 4, $startDate = null, $endDate = null): array
     {
         $query = $qrCode->scans()->whereNotNull('country');
 
@@ -115,7 +115,7 @@ class AnalyticsService
     /**
      * Get referrer statistics.
      */
-    public function getReferrers(QrCode $qrCode, $startDate = null, $endDate = null): array
+    public function getReferrers(QRCode $qrCode, $startDate = null, $endDate = null): array
     {
         $query = $qrCode->scans();
 
@@ -156,7 +156,7 @@ class AnalyticsService
     /**
      * Get peak scanning hours.
      */
-    public function getPeakHours(QrCode $qrCode, $startDate = null, $endDate = null): array
+    public function getPeakHours(QRCode $qrCode, $startDate = null, $endDate = null): array
     {
         $query = $qrCode->scans();
 
@@ -208,7 +208,7 @@ class AnalyticsService
     /**
      * Get recent scans.
      */
-    public function getRecentScans(QrCode $qrCode, int $limit = 10): array
+    public function getRecentScans(QRCode $qrCode, int $limit = 10): array
     {
         return $qrCode->scans()
             ->orderByDesc('scanned_at')

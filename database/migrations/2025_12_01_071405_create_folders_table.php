@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('organization_id')->constrained()->onDelete('cascade');
             $table->foreignId('parent_id')->nullable()->constrained('folders')->onDelete('cascade');
             $table->string('name');
-            $table->string('slug');
+            $table->string('slug', 191);
             $table->text('description')->nullable();
             $table->string('color')->nullable(); // Hex color for UI
             $table->string('icon')->nullable(); // Icon name for UI

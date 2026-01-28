@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('notification_settings', function (Blueprint $table) {
             $table->id();
-            $table->string('notification_type')->unique(); // welcome, password_reset, scan_alert, etc.
+            $table->string('notification_type', 191)->unique(); // welcome, password_reset, scan_alert, etc.
             $table->boolean('is_enabled')->default(true);
             $table->string('description')->nullable();
             $table->timestamps();

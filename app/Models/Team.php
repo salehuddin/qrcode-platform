@@ -36,6 +36,6 @@ class Team extends Model
      */
     public function qrCodes()
     {
-        return $this->hasMany(QrCode::class);
+        return $this->hasMany(QRCode::class);
     }
 }

@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\QrCode;
+use App\Models\QRCode;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
-class QrCodeController extends Controller
+class QRCodeController extends Controller
 {
     public function __construct(
         protected \App\Services\FolderService $folderService,
@@ -99,7 +99,7 @@ class QrCodeController extends Controller
         return redirect()->route('qr-codes.show', $qrCode->id)->with('success', 'QR Code created successfully!');
     }
 
-    public function show(QrCode $qrCode)
+    public function show(QRCode $qrCode)
     {
         $user = Auth::user();
         $organization = $user->currentOrganization();
@@ -127,7 +127,7 @@ class QrCodeController extends Controller
         ]);
     }
 
-    public function edit(QrCode $qrCode)
+    public function edit(QRCode $qrCode)
     {
         $user = Auth::user();
         $organization = $user->currentOrganization();
@@ -149,7 +149,7 @@ class QrCodeController extends Controller
         ]);
     }
 
-    public function update(Request $request, QrCode $qrCode)
+    public function update(Request $request, QRCode $qrCode)
     {
         $user = Auth::user();
         $organization = $user->currentOrganization();
@@ -170,6 +170,7 @@ class QrCodeController extends Controller
             'tags.*' => 'exists:tags,id',
             'design' => 'nullable|array',
             'customization' => 'nullable|array',
+            'permalink' => 'nullable|string|unique:qr_codes,permalink,' . $qrCode->id,
         ]);
 
         $qrCode->update($validated);
@@ -181,7 +182,7 @@ class QrCodeController extends Controller
         return redirect()->route('qr-codes.show', $qrCode->id)->with('success', 'QR Code updated successfully!');
     }
 
-    public function destroy(QrCode $qrCode)
+    public function destroy(QRCode $qrCode)
     {
         $user = Auth::user();
         $organization = $user->currentOrganization();
@@ -201,7 +202,7 @@ class QrCodeController extends Controller
     /**
      * Show analytics for a specific QR code.
      */
-    public function analytics(Request $request, QrCode $qrCode)
+    public function analytics(Request $request, QRCode $qrCode)
     {
         $user = Auth::user();
         $organization = $user->currentOrganization();
@@ -252,7 +253,7 @@ class QrCodeController extends Controller
             'folder_id' => 'nullable|exists:folders,id',
         ]);
 
-        $query = QrCode::whereIn('id', $request->ids);
+        $query = QRCode::whereIn('id', $request->ids);
         
         $user = Auth::user();
         $organization = $user->currentOrganization();
@@ -282,7 +283,7 @@ class QrCodeController extends Controller
             'tag_ids.*' => 'required|integer|exists:tags,id',
         ]);
 
-        $query = QrCode::whereIn('id', $request->ids);
+        $query = QRCode::whereIn('id', $request->ids);
         
         $user = Auth::user();
         $organization = $user->currentOrganization();
@@ -303,7 +304,7 @@ class QrCodeController extends Controller
     /**
      * Toggle the active status of a QR code (dynamic only).
      */
-    public function toggleStatus(QrCode $qrCode)
+    public function toggleStatus(QRCode $qrCode)
     {
         $user = Auth::user();
         $organization = $user->currentOrganization();
@@ -328,7 +329,7 @@ class QrCodeController extends Controller
      */
     public function restore($id)
     {
-        $qrCode = QrCode::onlyTrashed()->findOrFail($id);
+        $qrCode = QRCode::onlyTrashed()->findOrFail($id);
         $user = Auth::user();
         $organization = $user->currentOrganization();
 
@@ -348,7 +349,7 @@ class QrCodeController extends Controller
      */
     public function forceDelete($id)
     {
-        $qrCode = QrCode::onlyTrashed()->findOrFail($id);
+        $qrCode = QRCode::onlyTrashed()->findOrFail($id);
         $user = Auth::user();
         $organization = $user->currentOrganization();
 
@@ -365,7 +366,7 @@ class QrCodeController extends Controller
     /**
      * Download the QR code in a specific format.
      */
-    public function download(Request $request, QrCode $qrCode)
+    public function download(Request $request, QRCode $qrCode)
     {
         $user = Auth::user();
         $organization = $user->currentOrganization();

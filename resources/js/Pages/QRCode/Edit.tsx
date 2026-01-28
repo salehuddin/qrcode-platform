@@ -261,9 +261,12 @@ export default function EditQRCode({ qrCode, folders, tags, brandKits }: EditQRC
         }
     }, [selectedType, qrData]);
 
-    const permalink = useMemo(() => {
-        return qrCode.permalink || '';
-    }, [qrCode.permalink]);
+    const [permalink, setPermalink] = useState(() => {
+        if (!qrCode.permalink) return '';
+        // Handle case where full URL might have been saved
+        const parts = qrCode.permalink.split('/');
+        return parts[parts.length - 1];
+    });
 
     const qrContent = useMemo(() => {
         if (!selectedType) return '';
@@ -327,6 +330,7 @@ export default function EditQRCode({ qrCode, folders, tags, brandKits }: EditQRC
             customization,
             folder_id: selectedFolderId === 'none' ? null : parseInt(selectedFolderId),
             tags: selectedTagIds,
+            permalink: permalink,
         });
     };
 
@@ -474,12 +478,26 @@ export default function EditQRCode({ qrCode, folders, tags, brandKits }: EditQRC
                                                     </p>
                                                 </div>
                                             </div>
-                                            {mode === 'dynamic' && permalink && (
-                                                <div className="space-y-1">
-                                                    <Label>Permalink</Label>
-                                                    <div className="rounded border bg-muted px-2 py-1 text-xs font-mono break-all">
-                                                        {permalink}
+                                            {mode === 'dynamic' && (
+                                                <div className="space-y-2">
+                                                    <Label htmlFor="permalink">Permalink</Label>
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="flex rounded-md shadow-sm ring-offset-background border bg-muted">
+                                                            <span className="flex select-none items-center pl-3 pr-1 text-xs text-muted-foreground">
+                                                                {window.location.origin}/r/
+                                                            </span>
+                                                            <input
+                                                                id="permalink"
+                                                                className="flex h-9 w-full rounded-r-md bg-transparent py-1 px-3 text-sm placeholder:text-muted-foreground focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                                                                value={permalink}
+                                                                onChange={(e) => setPermalink(e.target.value)}
+                                                                placeholder="custom-link"
+                                                            />
+                                                        </div>
                                                     </div>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        Leave empty to keep the current one.
+                                                    </p>
                                                 </div>
                                             )}
                                         </div>

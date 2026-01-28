@@ -29,6 +29,6 @@ class Tag extends Model
      */
     public function qrCodes()
     {
-        return $this->belongsToMany(QrCode::class, 'qr_code_tag', 'tag_id', 'qr_code_id')->withTimestamps();
+        return $this->belongsToMany(QRCode::class, 'qr_code_tag', 'tag_id', 'qr_code_id')->withTimestamps();
     }
 }

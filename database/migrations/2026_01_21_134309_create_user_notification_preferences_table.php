@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('user_notification_preferences', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('notification_type'); // welcome, password_reset, scan_alert, etc.
+            $table->string('notification_type', 191); // welcome, password_reset, scan_alert, etc.
             $table->boolean('is_enabled')->default(true);
             $table->timestamps();
             

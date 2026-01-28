@@ -21,5 +21,14 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Vite::prefetch(concurrency: 3);
+
+        try {
+            // Apply email settings from database if available
+            if (class_exists(\App\Services\EmailConfigService::class) && \Illuminate\Support\Facades\Schema::hasTable('email_settings')) {
+                app(\App\Services\EmailConfigService::class)->applyEmailConfig();
+            }
+        } catch (\Exception $e) {
+            // Fails silently during migrations/setup
+        }
     }
 }

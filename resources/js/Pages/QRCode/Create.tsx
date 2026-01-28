@@ -240,7 +240,7 @@ export default function CreateQRCode({ folders, tags, brandKits }: Props) {
     const permalink = useMemo(() => {
         if (mode !== 'dynamic') return '';
 
-        const baseUrl = 'https://example.test';
+        const baseUrl = window.location.origin;
         const slug = permalinkSlug || (
             name
                 ? name
@@ -307,13 +307,23 @@ export default function CreateQRCode({ folders, tags, brandKits }: Props) {
         const destinationUrl = selectedType === 'url' && qrData.url ? qrData.url : null;
         const finalContent = qrContent || encodeData;
 
+        const slug = permalinkSlug || (
+            name
+                ? name
+                    .trim()
+                    .toLowerCase()
+                    .replace(/[^a-z0-9]+/g, '-')
+                    .replace(/^-+|-+$/g, '')
+                : 'new-qr'
+        );
+
         router.post(route('qr-codes.store'), {
             name,
             description,
             mode,
             type: selectedType,
             content: finalContent,
-            permalink: mode === 'dynamic' ? permalink : null,
+            permalink: mode === 'dynamic' ? slug : null,
             destination_url: destinationUrl,
             design,
             customization,
@@ -474,7 +484,7 @@ export default function CreateQRCode({ folders, tags, brandKits }: Props) {
                                                 <div className="space-y-2">
                                                     <Label htmlFor="permalink-slug">Custom Permalink</Label>
                                                     <div className="flex items-center gap-2">
-                                                        <span className="text-xs text-muted-foreground whitespace-nowrap">https://example.test/r/</span>
+                                                        <span className="text-xs text-muted-foreground whitespace-nowrap">{window.location.origin}/r/</span>
                                                         <Input
                                                             id="permalink-slug"
                                                             placeholder={name ? name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') : 'new-qr'}

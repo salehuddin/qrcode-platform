@@ -2,7 +2,7 @@
 
 namespace App\Mail;
 
-use App\Models\QrCode;
+use App\Models\QRCode;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -18,7 +18,7 @@ class QRScanAlert extends Mailable implements ShouldQueue
      * Create a new message instance.
      */
     public function __construct(
-        public QrCode $qrCode,
+        public QRCode $qrCode,
         public int $scanCount
     ) {}
 
