@@ -1,5 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, useForm } from '@inertiajs/react';
+import { Head, useForm, router } from '@inertiajs/react';
 import { PageProps } from '@/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/Components/ui/card';
 import { Label } from '@/Components/ui/label';
@@ -77,28 +77,26 @@ export default function EmailSettings({ auth, currentConfig, configStatus }: Pro
         }
 
         setIsTesting(true);
-        fetch(route('admin.email-settings.test'), {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-            },
-            body: JSON.stringify({ test_email: testEmail }),
-        })
-            .then(() => {
+        // Use router.post instead of fetch to handle CSRF tokens automatically
+        router.post(route('admin.email-settings.test'), { test_email: testEmail }, {
+            preserveScroll: true,
+            onSuccess: () => {
                 toast({
                     title: 'Success',
                     description: 'Test email sent! Check your inbox.',
                 });
-            })
-            .catch(() => {
+                setIsTesting(false);
+            },
+            onError: () => {
                 toast({
                     title: 'Error',
                     description: 'Failed to send test email.',
                     variant: 'destructive',
                 });
-            })
-            .finally(() => setIsTesting(false));
+                setIsTesting(false);
+            },
+            onFinish: () => setIsTesting(false),
+        });
     };
 
     return (
