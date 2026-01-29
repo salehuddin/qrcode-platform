@@ -4,12 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Team;
+use App\Services\OrganizationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
 class TeamMemberController extends Controller
 {
+    protected $organizationService;
+
+    public function __construct(OrganizationService $organizationService)
+    {
+        $this->organizationService = $organizationService;
+    }
     /**
      * Add a member to the organization (Invite).
      */
@@ -21,8 +28,9 @@ class TeamMemberController extends Controller
         if (!$organization) {
             return back()->with('error', 'Organization not found.');
         }
-
-        if (!$user->canManageQrCodes($organization)) {
+        // Check permissions - only admin and owner can manage members
+        $role = $organization->users()->where('user_id', $user->id)->first()?->pivot->role;
+        if (!in_array($role, ['owner', 'admin'])) {
             return back()->with('error', 'Unauthorized.');
         }
 
@@ -75,8 +83,9 @@ class TeamMemberController extends Controller
             return back()->with('error', 'Organization not found.');
         }
 
-        // Check permissions
-        if (!$user->canManageQrCodes($organization)) {
+        // Check permissions - only admin and owner can manage members
+        $role = $organization->users()->where('user_id', $user->id)->first()?->pivot->role;
+        if (!in_array($role, ['owner', 'admin'])) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -115,8 +124,9 @@ class TeamMemberController extends Controller
             return back()->with('error', 'Organization not found.');
         }
 
-        // Check permissions
-        if (!$user->canManageQrCodes($organization)) {
+        // Check permissions - only admin and owner can manage members
+        $role = $organization->users()->where('user_id', $user->id)->first()?->pivot->role;
+        if (!in_array($role, ['owner', 'admin'])) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -126,7 +136,8 @@ class TeamMemberController extends Controller
             return back()->with('error', 'You cannot remove yourself.');
         }
 
-        $organization->users()->detach($targetUser->id);
+        // Use OrganizationService to properly remove user and transfer QR codes
+        $this->organizationService->removeUser($organization, $targetUser);
 
         return back()->with('success', 'Member removed successfully.');
     }
