@@ -42,8 +42,15 @@ class InvitationService
             'expires_at' => now()->addDays(7),
         ]);
 
+
         // Send email
-        Mail::to($email)->send(new TeamInvitation($invitation));
+        try {
+            Mail::to($email)->send(new TeamInvitation($invitation));
+            \Log::info("Invitation email sent successfully to: {$email}");
+        } catch (\Exception $e) {
+            \Log::error("Failed to send invitation email to {$email}: " . $e->getMessage());
+            throw $e; // Re-throw so controller can handle it
+        }
 
         return $invitation;
     }
