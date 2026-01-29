@@ -43,6 +43,10 @@ class InvitationService
         ]);
 
 
+        // Apply email configuration from database
+        $emailConfigService = app(\App\Services\EmailConfigService::class);
+        $emailConfigService->applyEmailConfig();
+
         // Send email
         try {
             Mail::to($email)->send(new TeamInvitation($invitation));
