@@ -17,6 +17,7 @@ import { Download, Move, Tag as TagIcon, FolderOpen, Plus } from 'lucide-react';
 import { Switch } from '@/Components/ui/switch';
 import { useState } from 'react';
 import { useForm } from '@inertiajs/react';
+import { downloadStyledQRCode } from '@/lib/qrCodeDownload';
 import {
     Dialog,
     DialogContent,
@@ -181,17 +182,17 @@ export default function Show({ auth, qrCode, activities, folders, tags }: QRCode
                                     <DropdownMenuContent align="end">
                                         <DropdownMenuLabel>Choose Format</DropdownMenuLabel>
                                         <DropdownMenuSeparator />
-                                        <DropdownMenuItem onClick={() => window.location.href = route('qr-codes.download', { qrCode: currentQR.id, format: 'png' })}>
+                                        <DropdownMenuItem onClick={() => downloadStyledQRCode(currentQR.content, customization, currentQR.name, 'png')}>
                                             PNG Image (.png)
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem onClick={() => window.location.href = route('qr-codes.download', { qrCode: currentQR.id, format: 'svg' })}>
+                                        <DropdownMenuItem onClick={() => downloadStyledQRCode(currentQR.content, customization, currentQR.name, 'svg')}>
                                             SVG Vector (.svg)
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem onClick={() => window.location.href = route('qr-codes.download', { qrCode: currentQR.id, format: 'pdf' })}>
-                                            PDF Document (.pdf)
+                                        <DropdownMenuItem onClick={() => downloadStyledQRCode(currentQR.content, customization, currentQR.name, 'jpeg')}>
+                                            JPEG Image (.jpeg)
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem onClick={() => window.location.href = route('qr-codes.download', { qrCode: currentQR.id, format: 'eps' })}>
-                                            EPS Vector (.eps)
+                                        <DropdownMenuItem onClick={() => downloadStyledQRCode(currentQR.content, customization, currentQR.name, 'webp')}>
+                                            WebP Image (.webp)
                                         </DropdownMenuItem>
                                     </DropdownMenuContent>
                                 </DropdownMenu>

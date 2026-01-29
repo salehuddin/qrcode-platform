@@ -11,6 +11,7 @@ import FolderTree from '@/Components/FolderTree';
 import { Folder as FolderIcon, Plus, FolderOpen, MoreVertical, Tag as TagIcon, Move, Trash2, RotateCcw } from 'lucide-react';
 import { QRCodePreview } from './Partials/QRCodePreview';
 import QRCodeStyling from 'qr-code-styling';
+import { downloadStyledQRCode } from '@/lib/qrCodeDownload';
 import { Tabs, TabsList, TabsTrigger } from '@/Components/ui/tabs';
 import { Switch } from '@/Components/ui/switch';
 import {
@@ -768,17 +769,109 @@ export default function QRCodeIndex({ qrCodes = mockQRCodes, folders = mockFolde
                                                             </Button>
                                                         </DropdownMenuTrigger>
                                                         <DropdownMenuContent>
-                                                            <DropdownMenuItem onClick={() => window.location.href = route('qr-codes.download', { qrCode: qr.id, format: 'png' })}>
+                                                            <DropdownMenuItem onClick={() => downloadStyledQRCode(
+                                                                qr.content,
+                                                                {
+                                                                    dotsColor: qr.customization?.dotsColor ?? qr.design?.foreground_color ?? '#000000',
+                                                                    backgroundColor: qr.customization?.backgroundColor ?? qr.design?.background_color ?? '#ffffff',
+                                                                    cornersSquareColor: qr.customization?.cornersSquareColor ?? qr.design?.foreground_color ?? '#000000',
+                                                                    cornersDotsColor: qr.customization?.cornersDotsColor ?? qr.design?.foreground_color ?? '#000000',
+                                                                    dotsType: qr.customization?.dotsType ?? (qr.design?.pattern === 'dots' ? 'dots' : qr.design?.pattern === 'rounded' ? 'rounded' : 'square'),
+                                                                    cornersSquareType: qr.customization?.cornersSquareType ?? 'square',
+                                                                    cornersDotsType: qr.customization?.cornersDotsType ?? 'dot',
+                                                                    width: 1024,
+                                                                    height: 1024,
+                                                                    errorCorrectionLevel: qr.customization?.errorCorrectionLevel ?? qr.design?.error_correction ?? 'M',
+                                                                    imageSize: qr.customization?.imageSize ?? 0.2,
+                                                                    gradientEnabled: qr.customization?.gradientEnabled ?? false,
+                                                                    gradientType: qr.customization?.gradientType ?? 'linear',
+                                                                    gradientStartColor: qr.customization?.gradientStartColor ?? '#000000',
+                                                                    gradientEndColor: qr.customization?.gradientEndColor ?? '#000000',
+                                                                    gradientRotation: qr.customization?.gradientRotation ?? 0,
+                                                                    image: qr.customization?.image,
+                                                                },
+                                                                qr.name,
+                                                                'png'
+                                                            )}>
                                                                 PNG
                                                             </DropdownMenuItem>
-                                                            <DropdownMenuItem onClick={() => window.location.href = route('qr-codes.download', { qrCode: qr.id, format: 'svg' })}>
+                                                            <DropdownMenuItem onClick={() => downloadStyledQRCode(
+                                                                qr.content,
+                                                                {
+                                                                    dotsColor: qr.customization?.dotsColor ?? qr.design?.foreground_color ?? '#000000',
+                                                                    backgroundColor: qr.customization?.backgroundColor ?? qr.design?.background_color ?? '#ffffff',
+                                                                    cornersSquareColor: qr.customization?.cornersSquareColor ?? qr.design?.foreground_color ?? '#000000',
+                                                                    cornersDotsColor: qr.customization?.cornersDotsColor ?? qr.design?.foreground_color ?? '#000000',
+                                                                    dotsType: qr.customization?.dotsType ?? (qr.design?.pattern === 'dots' ? 'dots' : qr.design?.pattern === 'rounded' ? 'rounded' : 'square'),
+                                                                    cornersSquareType: qr.customization?.cornersSquareType ?? 'square',
+                                                                    cornersDotsType: qr.customization?.cornersDotsType ?? 'dot',
+                                                                    width: 1024,
+                                                                    height: 1024,
+                                                                    errorCorrectionLevel: qr.customization?.errorCorrectionLevel ?? qr.design?.error_correction ?? 'M',
+                                                                    imageSize: qr.customization?.imageSize ?? 0.2,
+                                                                    gradientEnabled: qr.customization?.gradientEnabled ?? false,
+                                                                    gradientType: qr.customization?.gradientType ?? 'linear',
+                                                                    gradientStartColor: qr.customization?.gradientStartColor ?? '#000000',
+                                                                    gradientEndColor: qr.customization?.gradientEndColor ?? '#000000',
+                                                                    gradientRotation: qr.customization?.gradientRotation ?? 0,
+                                                                    image: qr.customization?.image,
+                                                                },
+                                                                qr.name,
+                                                                'svg'
+                                                            )}>
                                                                 SVG
                                                             </DropdownMenuItem>
-                                                            <DropdownMenuItem onClick={() => window.location.href = route('qr-codes.download', { qrCode: qr.id, format: 'pdf' })}>
-                                                                PDF
+                                                            <DropdownMenuItem onClick={() => downloadStyledQRCode(
+                                                                qr.content,
+                                                                {
+                                                                    dotsColor: qr.customization?.dotsColor ?? qr.design?.foreground_color ?? '#000000',
+                                                                    backgroundColor: qr.customization?.backgroundColor ?? qr.design?.background_color ?? '#ffffff',
+                                                                    cornersSquareColor: qr.customization?.cornersSquareColor ?? qr.design?.foreground_color ?? '#000000',
+                                                                    cornersDotsColor: qr.customization?.cornersDotsColor ?? qr.design?.foreground_color ?? '#000000',
+                                                                    dotsType: qr.customization?.dotsType ?? (qr.design?.pattern === 'dots' ? 'dots' : qr.design?.pattern === 'rounded' ? 'rounded' : 'square'),
+                                                                    cornersSquareType: qr.customization?.cornersSquareType ?? 'square',
+                                                                    cornersDotsType: qr.customization?.cornersDotsType ?? 'dot',
+                                                                    width: 1024,
+                                                                    height: 1024,
+                                                                    errorCorrectionLevel: qr.customization?.errorCorrectionLevel ?? qr.design?.error_correction ?? 'M',
+                                                                    imageSize: qr.customization?.imageSize ?? 0.2,
+                                                                    gradientEnabled: qr.customization?.gradientEnabled ?? false,
+                                                                    gradientType: qr.customization?.gradientType ?? 'linear',
+                                                                    gradientStartColor: qr.customization?.gradientStartColor ?? '#000000',
+                                                                    gradientEndColor: qr.customization?.gradientEndColor ?? '#000000',
+                                                                    gradientRotation: qr.customization?.gradientRotation ?? 0,
+                                                                    image: qr.customization?.image,
+                                                                },
+                                                                qr.name,
+                                                                'jpeg'
+                                                            )}>
+                                                                JPEG
                                                             </DropdownMenuItem>
-                                                            <DropdownMenuItem onClick={() => window.location.href = route('qr-codes.download', { qrCode: qr.id, format: 'eps' })}>
-                                                                EPS
+                                                            <DropdownMenuItem onClick={() => downloadStyledQRCode(
+                                                                qr.content,
+                                                                {
+                                                                    dotsColor: qr.customization?.dotsColor ?? qr.design?.foreground_color ?? '#000000',
+                                                                    backgroundColor: qr.customization?.backgroundColor ?? qr.design?.background_color ?? '#ffffff',
+                                                                    cornersSquareColor: qr.customization?.cornersSquareColor ?? qr.design?.foreground_color ?? '#000000',
+                                                                    cornersDotsColor: qr.customization?.cornersDotsColor ?? qr.design?.foreground_color ?? '#000000',
+                                                                    dotsType: qr.customization?.dotsType ?? (qr.design?.pattern === 'dots' ? 'dots' : qr.design?.pattern === 'rounded' ? 'rounded' : 'square'),
+                                                                    cornersSquareType: qr.customization?.cornersSquareType ?? 'square',
+                                                                    cornersDotsType: qr.customization?.cornersDotsType ?? 'dot',
+                                                                    width: 1024,
+                                                                    height: 1024,
+                                                                    errorCorrectionLevel: qr.customization?.errorCorrectionLevel ?? qr.design?.error_correction ?? 'M',
+                                                                    imageSize: qr.customization?.imageSize ?? 0.2,
+                                                                    gradientEnabled: qr.customization?.gradientEnabled ?? false,
+                                                                    gradientType: qr.customization?.gradientType ?? 'linear',
+                                                                    gradientStartColor: qr.customization?.gradientStartColor ?? '#000000',
+                                                                    gradientEndColor: qr.customization?.gradientEndColor ?? '#000000',
+                                                                    gradientRotation: qr.customization?.gradientRotation ?? 0,
+                                                                    image: qr.customization?.image,
+                                                                },
+                                                                qr.name,
+                                                                'webp'
+                                                            )}>
+                                                                WebP
                                                             </DropdownMenuItem>
                                                         </DropdownMenuContent>
                                                     </DropdownMenu>
