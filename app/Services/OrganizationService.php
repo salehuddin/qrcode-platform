@@ -72,7 +72,21 @@ class OrganizationService
      */
     public function removeUser(Organization $organization, User $user): void
     {
-        $organization->users()->detach($user->id);
+        DB::transaction(function () use ($organization, $user) {
+            // 1. Transfer user's QR codes to organization owner
+            $owner = $organization->users()->wherePivot('role', 'owner')->first();
+            
+            if ($owner && $owner->id !== $user->id) {
+                // Transfer all QR codes from removed user to owner
+                DB::table('qr_codes')
+                    ->where('organization_id', $organization->id)
+                    ->where('user_id', $user->id)
+                    ->update(['user_id' => $owner->id]);
+            }
+            
+            // 2. Remove user from organization
+            $organization->users()->detach($user->id);
+        });
     }
 
     /**
