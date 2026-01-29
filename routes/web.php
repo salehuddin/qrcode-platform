@@ -15,32 +15,9 @@ Route::get('/', function () {
 // Public redirect route for QR code permalinks
 Route::get('/r/{permalink}', [RedirectController::class, 'redirect'])->name('qr.redirect');
 
-Route::get('/dashboard', function () {
-    // Mock dashboard data
-    return Inertia::render('Dashboard', [
-        'stats' => [
-            'total_qr_codes' => 12,
-            'active_qr_codes' => 10,
-            'total_scans' => 1250,
-            'scans_this_month' => 450,
-            'top_performing_codes' => [
-                 [
-                    'id' => '1',
-                    'name' => 'Website Homepage',
-                    'type' => 'url',
-                    'scan_count' => 245,
-                 ],
-                 [
-                    'id' => '2',
-                    'name' => 'Fall Campaign',
-                    'type' => 'url',
-                    'scan_count' => 180,
-                 ]
-            ],
-            'recent_scans' => []
-        ]
-    ]);
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
 Route::get('/analytics/export', [App\Http\Controllers\AnalyticsController::class, 'export'])
     ->middleware(['auth', 'verified'])
