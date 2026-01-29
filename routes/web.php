@@ -205,9 +205,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 });
 
-Route::middleware(['auth'])->group(function () {
-    Route::get('/invitations/{token}/accept', [App\Http\Controllers\InvitationController::class, 'accept'])->name('invitations.accept');
-});
+// Invitation acceptance - must be accessible to unauthenticated users
+Route::get('/invitations/{token}/accept', [App\Http\Controllers\InvitationController::class, 'accept'])->name('invitations.accept');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
