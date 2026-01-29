@@ -44,6 +44,7 @@ export function downloadStyledQRCode(
         width: exportSize,
         height: exportSize,
         data: data,
+        margin: 20, // Add padding around QR code
         dotsOptions: {
             ...(gradient ? { gradient: gradient as any } : { color: customization.dotsColor || '#000000' }),
             type: (customization.dotsType || 'square') as any,
