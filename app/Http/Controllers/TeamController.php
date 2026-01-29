@@ -21,6 +21,9 @@ class TeamController extends Controller
             return redirect()->route('dashboard')->with('error', 'You do not belong to any organization.');
         }
 
+        // Ensure organization_id is in session for middleware
+        session(['organization_id' => $organization->id]);
+
         // Ensure user has permission to view team settings
         // For MVP, allow all members to view, but maybe restrict actions
         
