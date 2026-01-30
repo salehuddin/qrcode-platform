@@ -92,19 +92,26 @@ interface Tag {
     color: string | null;
 }
 
+interface Team {
+    id: number;
+    name: string;
+}
+
 interface Props extends PageProps {
     folders: Folder[];
     tags: Tag[];
+    teams: Team[];
     brandKits: BrandKit[];
 }
 
-export default function CreateQRCode({ folders, tags, brandKits }: Props) {
+export default function CreateQRCode({ folders, tags, teams, brandKits }: Props) {
     const [selectedType, setSelectedType] = useState<QRCodeType | null>(null);
     const [mode, setMode] = useState<QRCodeMode>('dynamic');
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [permalinkSlug, setPermalinkSlug] = useState('');
     const [selectedFolderId, setSelectedFolderId] = useState<string>('none');
+    const [selectedTeamId, setSelectedTeamId] = useState<string>('none');
     const [selectedTagIds, setSelectedTagIds] = useState<number[]>([]);
     const [qrData, setQrData] = useState<any>({});
     const [customization, setCustomization] = useState<Partial<QRCustomization>>({
@@ -328,6 +335,7 @@ export default function CreateQRCode({ folders, tags, brandKits }: Props) {
             design,
             customization,
             folder_id: selectedFolderId === 'none' ? null : selectedFolderId,
+            team_id: selectedTeamId === 'none' ? null : selectedTeamId,
             tags: selectedTagIds,
         });
     };

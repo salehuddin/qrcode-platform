@@ -71,14 +71,20 @@ const mockTags: Tag[] = [
     { id: 4, name: 'Office', color: '#f97316', organization_id: 1 },
 ];
 
+interface Team {
+    id: number;
+    name: string;
+}
+
 interface QRCodeIndexProps extends PageProps {
     qrCodes?: QRCode[];
     folders?: Folder[];
     tags?: Tag[];
+    teams?: Team[];
     view?: 'active' | 'all' | 'trash';
 }
 
-export default function QRCodeIndex({ qrCodes = mockQRCodes, folders = mockFolders, tags = mockTags, view = 'active' }: QRCodeIndexProps) {
+export default function QRCodeIndex({ qrCodes = mockQRCodes, folders = mockFolders, tags = mockTags, teams = [], view = 'active' }: QRCodeIndexProps) {
     const { props } = usePage();
     const router = useForm(); // Use useForm for Inertia actions
 
@@ -107,6 +113,7 @@ export default function QRCodeIndex({ qrCodes = mockQRCodes, folders = mockFolde
 
     // Tag Filter & Creation State
     const [selectedTagFilterId, setSelectedTagFilterId] = useState<number | string | null>(null);
+    const [selectedTeamFilterId, setSelectedTeamFilterId] = useState<number | string | null>(null);
     const [newTagName, setNewTagName] = useState('');
     const [isDeleteTagOpen, setIsDeleteTagOpen] = useState(false);
     const [tagToDelete, setTagToDelete] = useState<Tag | null>(null);
