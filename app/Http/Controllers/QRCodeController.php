@@ -38,10 +38,19 @@ class QRCodeController extends Controller
             $query->where('folder_id', $request->folder_id);
         }
 
+
         if ($request->has('tag_id')) {
             $query->whereHas('tags', function ($q) use ($request) {
                 $q->where('tags.id', $request->tag_id);
             });
+        }
+
+        if ($request->has('team_id')) {
+            if ($request->team_id === 'no-team') {
+                $query->whereNull('team_id');
+            } else {
+                $query->where('team_id', $request->team_id);
+            }
         }
 
         $qrCodes = $query->get();
@@ -51,7 +60,8 @@ class QRCodeController extends Controller
             'qrCodes' => $qrCodes,
             'folders' => $organization ? $this->folderService->getFolderTree($organization) : [],
             'tags' => $organization ? $this->tagService->getTags($organization) : [],
-            'filters' => $request->only(['folder_id', 'tag_id']),
+            'teams' => $organization ? $organization->teams()->get() : [],
+            'filters' => $request->only(['folder_id', 'tag_id', 'team_id']),
             'view' => $view,
         ]);
     }
@@ -63,6 +73,7 @@ class QRCodeController extends Controller
         return Inertia::render('QRCode/Create', [
             'folders' => $organization ? $this->folderService->getFolderTree($organization) : [],
             'tags' => $organization ? $this->tagService->getTags($organization) : [],
+            'teams' => $organization ? $organization->teams()->get() : [],
             'brandKits' => $organization ? \App\Models\BrandKit::where('organization_id', $organization->id)->get() : [],
         ]);
     }
@@ -80,6 +91,7 @@ class QRCodeController extends Controller
             'design' => 'nullable|array',
             'customization' => 'nullable|array',
             'folder_id' => 'nullable|exists:folders,id',
+            'team_id' => 'nullable|exists:teams,id',
             'tags' => 'nullable|array',
             'tags.*' => 'exists:tags,id',
         ]);

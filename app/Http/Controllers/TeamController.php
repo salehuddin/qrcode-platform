@@ -83,9 +83,114 @@ class TeamController extends Controller
             'description' => 'nullable|string|max:1000',
         ]);
 
+
         $organization->teams()->create($validated);
 
         return back()->with('success', 'Team created successfully.');
+    }
+
+    /**
+     * Display team detail page with members and QR codes.
+     */
+    public function showTeam(Request $request, Team $team)
+    {
+        $user = Auth::user();
+        $organization = $user->currentOrganization();
+
+        if ($team->organization_id !== $organization->id) {
+            abort(403);
+        }
+
+        $members = $team->users()
+            ->withCount(['qrCodes' => function ($query) use ($organization) {
+                $query->where('organization_id', $organization->id);
+            }])
+            ->get()
+            ->map(function ($member) {
+                return [
+                    'id' => $member->id,
+                    'name' => $member->name,
+                    'email' => $member->email,
+                    'profile_photo_url' => $member->profile_photo_url,
+                    'qr_codes_count' => $member->qr_codes_count,
+                ];
+            });
+
+        $availableMembers = $organization->users()
+            ->whereNotIn('users.id', $members->pluck('id'))
+            ->get()
+            ->map(function ($member) {
+                return [
+                    'id' => $member->id,
+                    'name' => $member->name,
+                    'email' => $member->email,
+                ];
+            });
+
+        $qrCodes = $organization->qrCodes()
+            ->where('team_id', $team->id)
+            ->with(['user', 'tags'])
+            ->latest()
+            ->get();
+
+        return Inertia::render('Team/TeamDetail', [
+            'team' => $team,
+            'members' => $members,
+            'availableMembers' => $availableMembers,
+            'qrCodes' => $qrCodes,
+        ]);
+    }
+
+    /**
+     * Add a member to a team.
+     */
+    public function addMember(Request $request, Team $team)
+    {
+        $user = Auth::user();
+        $organization = $user->currentOrganization();
+
+        if ($team->organization_id !== $organization->id) {
+            abort(403);
+        }
+
+        $role = $organization->users()->where('user_id', $user->id)->first()?->pivot->role;
+        if (!in_array($role, ['owner', 'admin'])) {
+            return back()->with('error', 'Unauthorized.');
+        }
+
+        $validated = $request->validate([
+            'user_id' => 'required|exists:users,id',
+        ]);
+
+        if (!$organization->users()->where('users.id', $validated['user_id'])->exists()) {
+            return back()->with('error', 'User is not a member of this organization.');
+        }
+
+        $team->users()->syncWithoutDetaching([$validated['user_id']]);
+
+        return back()->with('success', 'Member added to team successfully.');
+    }
+
+    /**
+     * Remove a member from a team.
+     */
+    public function removeMember(Request $request, Team $team, User $user)
+    {
+        $currentUser = Auth::user();
+        $organization = $currentUser->currentOrganization();
+
+        if ($team->organization_id !== $organization->id) {
+            abort(403);
+        }
+
+        $role = $organization->users()->where('user_id', $currentUser->id)->first()?->pivot->role;
+        if (!in_array($role, ['owner', 'admin'])) {
+            return back()->with('error', 'Unauthorized.');
+        }
+
+        $team->users()->detach($user->id);
+
+        return back()->with('success', 'Member removed from team successfully.');
     }
 
     /**

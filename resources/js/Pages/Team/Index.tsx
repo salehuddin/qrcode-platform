@@ -1,5 +1,5 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import { Head, usePage } from "@inertiajs/react";
+import { Head, usePage, router } from "@inertiajs/react";
 import { PageProps } from "@/types";
 import { Button } from "@/Components/ui/button";
 import {
@@ -183,7 +183,11 @@ export default function TeamIndex({ auth, organization, members, teams }: TeamDa
                         <TabsContent value="teams" className="space-y-4">
                             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                                 {teams.map((team) => (
-                                    <Card key={team.id}>
+                                    <Card 
+                                        key={team.id}
+                                        className="cursor-pointer hover:border-primary transition-colors"
+                                        onClick={() => router.visit(route('teams.show', team.id))}
+                                    >
                                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                             <CardTitle className="text-sm font-medium">
                                                 {team.name}

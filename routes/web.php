@@ -200,10 +200,12 @@ Route::middleware('auth')->group(function () {
     Route::patch('/settings/preferences', [App\Http\Controllers\UserPreferencesController::class, 'update'])->name('preferences.update');
 
 
-    // Team Management
     Route::get('/team', [App\Http\Controllers\TeamController::class, 'index'])->name('team.index');
     Route::get('/team/members/{user}', [App\Http\Controllers\TeamController::class, 'show'])->name('team.show');
     Route::post('/teams', [App\Http\Controllers\TeamController::class, 'store'])->name('teams.store');
+    Route::get('/teams/{team}', [App\Http\Controllers\TeamController::class, 'showTeam'])->name('teams.show');
+    Route::post('/teams/{team}/members', [App\Http\Controllers\TeamController::class, 'addMember'])->name('teams.members.add');
+    Route::delete('/teams/{team}/members/{user}', [App\Http\Controllers\TeamController::class, 'removeMember'])->name('teams.members.remove');
     Route::post('/team/members', [App\Http\Controllers\TeamMemberController::class, 'store'])->name('team.members.store');
     Route::put('/team/members/{user}', [App\Http\Controllers\TeamMemberController::class, 'update'])->name('team.members.update');
     Route::delete('/team/members/{user}', [App\Http\Controllers\TeamMemberController::class, 'destroy'])->name('team.members.destroy');
