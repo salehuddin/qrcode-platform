@@ -4,8 +4,11 @@ namespace App\Services;
 
 use App\Models\Organization;
 use App\Models\User;
+use App\Notifications\MemberRemovedNotification;
+use App\Notifications\MemberRemovedAdminNotification;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class OrganizationService
 {
@@ -86,6 +89,17 @@ class OrganizationService
             
             // 2. Remove user from organization
             $organization->users()->detach($user->id);
+            
+            // 3. Send notifications
+            $removedBy = Auth::user();
+            
+            // Notify removed user
+            $user->notify(new MemberRemovedNotification($organization, $removedBy));
+            
+            // Notify owner/admin
+            if ($owner) {
+                $owner->notify(new MemberRemovedAdminNotification($organization, $user, $removedBy));
+            }
         });
     }
 

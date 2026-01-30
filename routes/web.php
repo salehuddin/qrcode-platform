@@ -27,6 +27,11 @@ Route::get('/analytics', [App\Http\Controllers\AnalyticsController::class, 'inde
     ->middleware(['auth', 'verified'])
     ->name('analytics');
 
+// No organization page for users without org access
+Route::get('/no-organization', function () {
+    return Inertia::render('NoOrganization');
+})->middleware(['auth'])->name('no-organization');
+
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/admin', function () {
         // Mock admin dashboard data

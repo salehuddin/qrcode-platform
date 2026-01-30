@@ -21,27 +21,25 @@ class EnsureOrganizationContext
             return redirect()->route('login');
         }
 
-        // Check if organization is already set in session
-        if (!$request->session()->has('organization_id')) {
-            // Try to get the first organization for the user
-            $organization = $user->organizations()->first();
-
-            if ($organization) {
-                $request->session()->put('organization_id', $organization->id);
-            } else {
-                // If no organization, and creating one is allowed (SaaS), redirect there
-                // For internal, this shouldn't happen due to seeding, but handle gracefully
-                if (config('features.features.organization_creation')) {
-                    return redirect()->route('organizations.create');
-                }
-                
-                abort(403, 'No organization found.');
+        // Check if user belongs to any organization
+        if ($user->organizations->count() === 0) {
+            // Allow access to no-organization page and logout
+            if ($request->routeIs('no-organization') || $request->routeIs('logout')) {
+                return $next($request);
             }
+            
+            return redirect()->route('no-organization');
         }
 
-        // Share organization with views/controllers via request
-        // We can also bind it to the container if needed
-        
+        // Get current organization from session
+        $currentOrgId = $request->session()->get('organization_id');
+
+        // If no session org or user doesn't belong to it anymore, use first org
+        if (!$currentOrgId || !$user->organizations->contains($currentOrgId)) {
+            $firstOrg = $user->organizations->first();
+            $request->session()->put('organization_id', $firstOrg->id);
+        }
+
         return $next($request);
     }
 }
