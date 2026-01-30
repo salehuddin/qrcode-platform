@@ -49,6 +49,17 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        // Check if user belongs to any organization
+        $user = Auth::user();
+        if ($user && $user->organizations()->count() === 0) {
+            // Log the user out immediately
+            Auth::logout();
+            
+            throw ValidationException::withMessages([
+                'email' => 'You do not have access to any organization. Please contact your organization administrator to request access.',
+            ]);
+        }
+
         RateLimiter::clear($this->throttleKey());
     }
 
