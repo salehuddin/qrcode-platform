@@ -72,9 +72,10 @@ class TeamController extends Controller
             return back()->with('error', 'Organization not found.');
         }
 
-        // Check permissions (e.g., only admin/owner can create teams)
-        if (!$user->canManageQrCodes($organization)) {
-             return back()->with('error', 'Unauthorized.');
+        // Check permissions - only admin and owner can create teams
+        $role = $organization->users()->where('user_id', $user->id)->first()?->pivot->role;
+        if (!in_array($role, ['owner', 'admin'])) {
+            return back()->with('error', 'Unauthorized.');
         }
 
         $validated = $request->validate([
