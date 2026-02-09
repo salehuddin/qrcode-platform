@@ -17,29 +17,46 @@ Route::get('/r/{permalink}', [RedirectController::class, 'redirect'])->name('qr.
 
 // Temporary route to fix storage link on production
 // Diagnostics to debug broken images
-Route::get('/debug-storage', function () {
-    $diagnostics = [
-        'base_path' => base_path(),
-        'public_path' => public_path(),
-        'storage_path_app_public' => storage_path('app/public'),
-        'public_storage_exists' => file_exists(public_path('storage')),
-        'public_storage_is_link' => is_link(public_path('storage')),
-        'public_storage_target' => is_link(public_path('storage')) ? readlink(public_path('storage')) : 'N/A',
-        'directory_perms' => substr(sprintf('%o', fileperms(storage_path('app/public'))), -4),
-        'files_in_logos_dir' => [],
-    ];
+// FORCE FIX for broken storage link
+Route::get('/fix-storage-force', function () {
+    $publicStorage = public_path('storage');
+    $results = [];
 
     try {
-        if (file_exists(storage_path('app/public/organizations/logos'))) {
-            $diagnostics['files_in_logos_dir'] = scandir(storage_path('app/public/organizations/logos'));
+        // 1. Check if it exists and is NOT a link (the root cause)
+        if (file_exists($publicStorage) && !is_link($publicStorage)) {
+            $results['step_1'] = 'Found physical directory at public/storage. Attempting to delete...';
+            
+            // recursively delete the directory
+            Illuminate\Support\Facades\File::deleteDirectory($publicStorage);
+            
+            if (!file_exists($publicStorage)) {
+                $results['step_1_status'] = 'SUCCESS: Directory deleted.';
+            } else {
+                $results['step_1_status'] = 'FAILED: Could not delete directory. Check permissions.';
+            }
         } else {
-            $diagnostics['files_in_logos_dir'] = 'Directory not found';
+            $results['step_1'] = 'No physical directory found (or it is already a link).';
         }
+
+        // 2. Create the link
+        if (!file_exists($publicStorage)) {
+            Artisan::call('storage:link');
+            $results['step_2'] = 'Ran storage:link.';
+            $results['step_2_output'] = Artisan::output();
+        } else {
+            $results['step_2'] = 'Skipped storage:link because target still exists.';
+        }
+
+        // 3. Final Verification
+        $results['final_status'] = is_link($publicStorage) ? 'FIXED: public/storage is now a symbolic link.' : 'STILL BROKEN';
+        
     } catch (\Exception $e) {
-        $diagnostics['error'] = $e->getMessage();
+        $results['error'] = $e->getMessage();
+        $results['trace'] = $e->getTraceAsString();
     }
 
-    return $diagnostics;
+    return $results;
 });
 
 Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])
