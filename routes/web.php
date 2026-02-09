@@ -59,6 +59,17 @@ Route::get('/fix-storage-force', function () {
     return $results;
 });
 
+Route::get('/debug-favicon', function () {
+    $path = public_path('favicon.ico');
+    return [
+        'path' => $path,
+        'exists' => file_exists($path),
+        'size' => file_exists($path) ? filesize($path) : 'N/A',
+        'perms' => file_exists($path) ? substr(sprintf('%o', fileperms($path)), -4) : 'N/A',
+        'is_readable' => is_readable($path),
+    ];
+});
+
 Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
