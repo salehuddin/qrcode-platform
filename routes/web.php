@@ -23,6 +23,33 @@ Route::get('/favicon-platform.ico', function () {
     return abort(404);
 });
 
+Route::get('/debug-analytics', function () {
+    $user = \Illuminate\Support\Facades\Auth::loginUsingId(1); // Force login as admin/first user for test
+    $organization = $user->currentOrganization();
+    
+    // Test Analytics Controller Logic
+    $scansQuery = \Illuminate\Support\Facades\DB::table('qr_scans')
+            ->join('qr_codes', 'qr_scans.qr_code_id', '=', 'qr_codes.id')
+            ->where('qr_codes.organization_id', $organization->id);
+            
+    $rawScans = (clone $scansQuery)
+            ->select(\Illuminate\Support\Facades\DB::raw('DATE(qr_scans.scanned_at) as date'), \Illuminate\Support\Facades\DB::raw('count(*) as count'))
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get();
+            
+    // Test Analytics Service Logic
+    $service = new \App\Services\AnalyticsService();
+    $qrCode = \App\Models\QRCode::where('organization_id', $organization->id)->first();
+    $serviceScans = $qrCode ? $service->getScansOverTime($qrCode) : 'No QR Code Found';
+
+    return [
+        'controller_raw_scans' => $rawScans,
+        'service_result' => $serviceScans,
+        'first_scan_sample' => \App\Models\QrScan::first(),
+    ];
+});
+
 
 
 Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])
