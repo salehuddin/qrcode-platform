@@ -284,7 +284,7 @@ export default function QRCodeAnalytics({
                                                 axisLine={false}
                                             />
                                             <ChartTooltip content={<ChartTooltipContent />} />
-                                            <Bar dataKey="value" fill="var(--color-scans)" radius={4} />
+                                            <Bar dataKey="value" fill="hsl(var(--chart-1))" radius={4} />
                                         </BarChart>
                                     </ChartContainer>
                                 </div>
