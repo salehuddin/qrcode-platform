@@ -74,8 +74,8 @@ class AnalyticsController extends Controller
 
         // 2. Scans Over Time
         $scansOverTimeData = (clone $filteredScansQuery)
-            ->select(DB::raw('DATE(qr_scans.scanned_at) as date'), DB::raw('count(*) as count'))
-            ->groupBy('date')
+            ->selectRaw('DATE(qr_scans.scanned_at) as date, COUNT(*) as count')
+            ->groupBy(\Illuminate\Support\Facades\DB::raw('DATE(qr_scans.scanned_at)'))
             ->orderBy('date')
             ->get();
             

@@ -21,8 +21,8 @@ class AnalyticsService
 
         $scans = $qrCode->scans()
             ->whereBetween('scanned_at', [$start->startOfDay(), $end->endOfDay()])
-            ->select(DB::raw('DATE(scanned_at) as date'), DB::raw('COUNT(*) as count'))
-            ->groupBy('date')
+            ->selectRaw('DATE(scanned_at) as date, COUNT(*) as count')
+            ->groupBy(\Illuminate\Support\Facades\DB::raw('DATE(scanned_at)'))
             ->orderBy('date')
             ->get();
 
