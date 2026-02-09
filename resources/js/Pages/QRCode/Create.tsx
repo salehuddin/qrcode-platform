@@ -254,8 +254,8 @@ export default function CreateQRCode({ folders, tags, teams, brandKits }: Props)
                 ? name
                     .trim()
                     .toLowerCase()
-                    .replace(/[^a-z0-9]+/g, '-')
-                    .replace(/^-+|-+$/g, '')
+                    .replace(/[^a-z0-9_-]+/g, '-')
+                    .replace(/^[-_]+|[-_]+$/g, '')
                 : 'new-qr'
         );
 
@@ -496,18 +496,19 @@ export default function CreateQRCode({ folders, tags, teams, brandKits }: Props)
                                                         <span className="text-xs text-muted-foreground whitespace-nowrap">{window.location.origin}/r/</span>
                                                         <Input
                                                             id="permalink-slug"
-                                                            placeholder={name ? name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') : 'new-qr'}
+                                                            placeholder={name ? name.trim().toLowerCase().replace(/[^a-z0-9_-]+/g, '-').replace(/^[-_]+|[-_]+$/g, '') : 'new-qr'}
                                                             value={permalinkSlug}
                                                             onChange={(e) => {
                                                                 const value = e.target.value
                                                                     .toLowerCase()
-                                                                    .replace(/[^a-z0-9-]/g, '')
-                                                                    .replace(/^-+|-+$/g, '');
+                                                                    .replace(/[^a-z0-9_-]/g, '')
+                                                                    .replace(/^[-_]+|[-_]+$/g, '');
                                                                 setPermalinkSlug(value);
                                                             }}
                                                             className="text-xs font-mono"
                                                         />
                                                     </div>
+                                                    <p className="text-xs text-muted-foreground mt-1">Only lowercase letters, numbers, hyphens, and underscores allowed</p>
                                                     <p className="text-xs text-muted-foreground">
                                                         Leave empty to auto-generate from QR name
                                                     </p>

@@ -521,11 +521,18 @@ export default function EditQRCode({ qrCode, folders, tags, brandKits }: EditQRC
                                                                 id="permalink"
                                                                 className="flex h-9 w-full rounded-r-md bg-transparent py-1 px-3 text-sm placeholder:text-muted-foreground focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                                                                 value={permalink}
-                                                                onChange={(e) => setPermalink(e.target.value)}
+                                                                onChange={(e) => {
+                                                                    const value = e.target.value
+                                                                        .toLowerCase()
+                                                                        .replace(/[^a-z0-9_-]/g, '')
+                                                                        .replace(/^[-_]+|[-_]+$/g, '');
+                                                                    setPermalink(value);
+                                                                }}
                                                                 placeholder="custom-link"
                                                             />
                                                         </div>
                                                     </div>
+                                                    <p className="text-xs text-muted-foreground mt-1">Only lowercase letters, numbers, hyphens, and underscores allowed</p>
                                                     <p className="text-xs text-muted-foreground">
                                                         Leave empty to keep the current one.
                                                     </p>

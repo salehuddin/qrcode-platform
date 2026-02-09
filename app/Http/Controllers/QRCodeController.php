@@ -86,7 +86,7 @@ class QRCodeController extends Controller
             'type' => 'required|string',
             'mode' => 'required|in:static,dynamic',
             'content' => 'required|string',
-            'permalink' => 'nullable|string|unique:qr_codes,permalink',
+            'permalink' => 'nullable|string|regex:/^[a-z0-9_-]+$/|unique:qr_codes,permalink',
             'destination_url' => 'nullable|string',
             'design' => 'nullable|array',
             'customization' => 'nullable|array',
@@ -182,7 +182,7 @@ class QRCodeController extends Controller
             'tags.*' => 'exists:tags,id',
             'design' => 'nullable|array',
             'customization' => 'nullable|array',
-            'permalink' => 'nullable|string|unique:qr_codes,permalink,' . $qrCode->id,
+            'permalink' => 'nullable|string|regex:/^[a-z0-9_-]+$/|unique:qr_codes,permalink,' . $qrCode->id,
         ]);
 
         $qrCode->update($validated);
