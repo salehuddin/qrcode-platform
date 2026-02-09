@@ -54,6 +54,10 @@ export function AppSidebar({ user }: AppSidebarProps) {
     const currentOrganization = props.auth?.current_organization;
     const [collapsed, setCollapsed] = useState(false);
     const { theme, setTheme } = useTheme();
+    
+    // Calculate actual dark mode state (including system preference)
+    const isDarkMode = theme === 'dark' || 
+        (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
     const navItems = [
         {
@@ -244,7 +248,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
                             collapsed && 'justify-center'
                         )}
                     >
-                        {theme === 'dark' ? (
+                        {isDarkMode ? (
                             <Moon className="h-5 w-5 shrink-0" />
                         ) : (
                             <Sun className="h-5 w-5 shrink-0" />
@@ -253,7 +257,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
                             <>
                                 <span className="flex-1 text-sm">Dark Mode</span>
                                 <Switch
-                                    checked={theme === 'dark'}
+                                    checked={isDarkMode}
                                     onCheckedChange={toggleDarkMode}
                                 />
                             </>

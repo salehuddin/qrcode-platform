@@ -203,8 +203,8 @@ export default function CreateQRCode({ folders, tags, teams, brandKits }: Props)
                 }
                 case 'sms': {
                     const num = qrData.phone || '';
-                    const body = qrData.message ? `?body=${encodeURIComponent(qrData.message)}` : '';
-                    return `SMSTO:${num}:${qrData.message || ''}` || `sms:${num}${body}`;
+                    const msg = qrData.message || '';
+                    return `SMSTO:${num}:${msg}`;
                 }
                 case 'email': {
                     const to = qrData.to || '';
