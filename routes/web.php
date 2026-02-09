@@ -15,6 +15,16 @@ Route::get('/', function () {
 // Public redirect route for QR code permalinks
 Route::get('/r/{permalink}', [RedirectController::class, 'redirect'])->name('qr.redirect');
 
+// Temporary route to fix storage link on production
+Route::get('/fix-storage-link', function () {
+    try {
+        Artisan::call('storage:link');
+        return 'Storage link created successfully.';
+    } catch (\Exception $e) {
+        return 'Error creating storage link: ' . $e->getMessage();
+    }
+});
+
 Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
