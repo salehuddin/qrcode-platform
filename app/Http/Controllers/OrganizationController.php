@@ -39,6 +39,10 @@ class OrganizationController extends Controller
      */
     public function update(Request $request)
     {
+        // Increase memory limit for this request to handle image processing
+        // The default 32MB is insufficient for file uploads/mime-type guessing
+        ini_set('memory_limit', '256M');
+
         $organization = Organization::findOrFail($request->session()->get('organization_id'));
 
         Gate::authorize('update', $organization);
