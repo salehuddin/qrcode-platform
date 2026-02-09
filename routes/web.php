@@ -15,6 +15,14 @@ Route::get('/', function () {
 // Public redirect route for QR code permalinks
 Route::get('/r/{permalink}', [RedirectController::class, 'redirect'])->name('qr.redirect');
 
+// Fallback for favicon.ico if static file serving fails
+Route::get('/favicon.ico', function () {
+    if (file_exists(public_path('favicon.ico'))) {
+        return response()->file(public_path('favicon.ico'));
+    }
+    return abort(404);
+});
+
 // Temporary route to fix storage link on production
 // Diagnostics to debug broken images
 // FORCE FIX for broken storage link
