@@ -15,7 +15,7 @@ import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "
 const chartConfig = {
   scans: {
     label: "Scans",
-    color: "hsl(var(--chart-1))",
+    color: "#10b981", // emerald-500 to match Peak Scanning Times
   },
 } satisfies ChartConfig
 
@@ -284,7 +284,7 @@ export default function QRCodeAnalytics({
                                                 axisLine={false}
                                             />
                                             <ChartTooltip content={<ChartTooltipContent />} />
-                                            <Bar dataKey="value" fill="hsl(var(--chart-1))" radius={4} />
+                                            <Bar dataKey="value" fill="var(--color-scans)" radius={4} />
                                         </BarChart>
                                     </ChartContainer>
                                 </div>
