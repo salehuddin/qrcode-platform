@@ -16,13 +16,30 @@ Route::get('/', function () {
 Route::get('/r/{permalink}', [RedirectController::class, 'redirect'])->name('qr.redirect');
 
 // Temporary route to fix storage link on production
-Route::get('/fix-storage-link', function () {
+// Diagnostics to debug broken images
+Route::get('/debug-storage', function () {
+    $diagnostics = [
+        'base_path' => base_path(),
+        'public_path' => public_path(),
+        'storage_path_app_public' => storage_path('app/public'),
+        'public_storage_exists' => file_exists(public_path('storage')),
+        'public_storage_is_link' => is_link(public_path('storage')),
+        'public_storage_target' => is_link(public_path('storage')) ? readlink(public_path('storage')) : 'N/A',
+        'directory_perms' => substr(sprintf('%o', fileperms(storage_path('app/public'))), -4),
+        'files_in_logos_dir' => [],
+    ];
+
     try {
-        Artisan::call('storage:link');
-        return 'Storage link created successfully.';
+        if (file_exists(storage_path('app/public/organizations/logos'))) {
+            $diagnostics['files_in_logos_dir'] = scandir(storage_path('app/public/organizations/logos'));
+        } else {
+            $diagnostics['files_in_logos_dir'] = 'Directory not found';
+        }
     } catch (\Exception $e) {
-        return 'Error creating storage link: ' . $e->getMessage();
+        $diagnostics['error'] = $e->getMessage();
     }
+
+    return $diagnostics;
 });
 
 Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])
