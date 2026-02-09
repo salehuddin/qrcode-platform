@@ -26,8 +26,36 @@ class RedirectController extends Controller
         $qrCode->increment('scan_count');
         $qrCode->update(['last_scanned_at' => now()]);
 
-        // Redirect to destination URL
-        return redirect($qrCode->destination_url);
+        $destination = $qrCode->destination_url;
+        
+        // Handle vCard data (Contact QR) - Download as .vcf file
+        if (str_starts_with($destination, 'BEGIN:VCARD')) {
+            return response($destination, 200, [
+                'Content-Type' => 'text/vcard; charset=utf-8',
+                'Content-Disposition' => 'attachment; filename="contact.vcf"'
+            ]);
+        }
+        
+        // Handle iCalendar data (Event QR) - Download as .ics file
+        if (str_starts_with($destination, 'BEGIN:VCALENDAR')) {
+            return response($destination, 200, [
+                'Content-Type' => 'text/calendar; charset=utf-8',
+                'Content-Disposition' => 'attachment; filename="event.ics"'
+            ]);
+        }
+        
+        // Handle HTTP/HTTPS URLs (URL QR) - Normal redirect
+        if (filter_var($destination, FILTER_VALIDATE_URL) && 
+            preg_match('/^https?:\/\//', $destination)) {
+            return redirect($destination);
+        }
+        
+        // Handle all other URI schemes (Phone, Email, Location, SMS, WiFi QRs)
+        // Use meta refresh for tel:, mailto:, geo:, SMSTO:, WIFI:
+        return response()->view('redirect-meta', [
+            'destination' => $destination,
+            'qrName' => $qrCode->name
+        ]);
     }
 
     /**
