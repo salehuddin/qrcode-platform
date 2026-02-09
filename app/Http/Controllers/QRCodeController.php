@@ -87,7 +87,7 @@ class QRCodeController extends Controller
             'mode' => 'required|in:static,dynamic',
             'content' => 'required|string',
             'permalink' => 'nullable|string|unique:qr_codes,permalink',
-            'destination_url' => 'nullable|url',
+            'destination_url' => 'nullable|string',
             'design' => 'nullable|array',
             'customization' => 'nullable|array',
             'folder_id' => 'nullable|exists:folders,id',
@@ -175,7 +175,7 @@ class QRCodeController extends Controller
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'destination_url' => 'required|url',
+            'destination_url' => 'required|string',
             'folder_id' => 'nullable|exists:folders,id',
             'is_active' => 'boolean',
             'tags' => 'array',

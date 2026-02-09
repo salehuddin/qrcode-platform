@@ -2,7 +2,7 @@ import { Input } from '@/Components/ui/input';
 import { Label } from '@/Components/ui/label';
 
 export interface PhoneFormData {
-    phone: string;
+    number: string;
 }
 
 interface PhoneFormProps {
@@ -19,8 +19,8 @@ export function PhoneForm({ data, onChange }: PhoneFormProps) {
                     id="phone"
                     type="tel"
                     placeholder="+1234567890"
-                    value={data.phone || ''}
-                    onChange={(e) => onChange('phone', e.target.value)}
+                    value={data.number || ''}
+                    onChange={(e) => onChange('number', e.target.value)}
                 />
             </div>
         </div>

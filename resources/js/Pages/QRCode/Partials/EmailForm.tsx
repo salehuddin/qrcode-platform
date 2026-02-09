@@ -3,7 +3,7 @@ import { Label } from '@/Components/ui/label';
 import { Textarea } from '@/Components/ui/textarea';
 
 export interface EmailFormData {
-    email: string;
+    to: string;
     subject: string;
     body: string;
 }
@@ -22,8 +22,8 @@ export function EmailForm({ data, onChange }: EmailFormProps) {
                     id="email"
                     type="email"
                     placeholder="recipient@example.com"
-                    value={data.email || ''}
-                    onChange={(e) => onChange('email', e.target.value)}
+                    value={data.to || ''}
+                    onChange={(e) => onChange('to', e.target.value)}
                 />
             </div>
             <div className="space-y-2">

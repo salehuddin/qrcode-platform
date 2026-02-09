@@ -242,7 +242,7 @@ export default function EditQRCode({ qrCode, folders, tags, brandKits }: EditQRC
                     const dtEnd = qrData.end ? new Date(qrData.end).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z' : '';
                     const summary = qrData.title || '';
                     const location = qrData.location || '';
-                    return `BEGIN:VCALENDAR\\nBEGIN:VEVENT\\nSUMMARY:${summary}\\nLOCATION:${location}\\nDTSTART:${dtStart}\\nDTEND:${dtEnd}\\nEND:VEVENT\\nEND:VCALENDAR`;
+                    return `BEGIN:VCALENDAR\nBEGIN:VEVENT\nSUMMARY:${summary}\nLOCATION:${location}\nDTSTART:${dtStart}\nDTEND:${dtEnd}\nEND:VEVENT\nEND:VCALENDAR`;
                 }
                 case 'vcard': {
                     const first = qrData.firstName || '';
@@ -251,7 +251,8 @@ export default function EditQRCode({ qrCode, folders, tags, brandKits }: EditQRC
                     const email = qrData.email || '';
                     const org = qrData.organization || '';
                     const title = qrData.title || '';
-                    return `BEGIN:VCARD\\nVERSION:3.0\\nN:${last};${first};;;\\nFN:${first} ${last}\\nORG:${org}\\nTITLE:${title}\\nTEL;TYPE=CELL:${phone}\\nEMAIL:${email}\\nEND:VCARD`;
+                    const website = qrData.website || '';
+                    return `BEGIN:VCARD\nVERSION:3.0\nN:${last};${first};;;\nFN:${first} ${last}\nORG:${org}\nTITLE:${title}\nTEL;TYPE=CELL:${phone}\nEMAIL:${email}${website ? `\nURL:${website}` : ''}\nEND:VCARD`;
                 }
                 default:
                     return '';
@@ -318,7 +319,7 @@ export default function EditQRCode({ qrCode, folders, tags, brandKits }: EditQRC
             error_correction: customization.errorCorrectionLevel || 'M',
         };
 
-        const destinationUrl = selectedType === 'url' && qrData.url ? qrData.url : null;
+        const destinationUrl = mode === 'dynamic' ? encodeData : null;
         const finalContent = qrContent || encodeData;
 
         router.put(route('qr-codes.update', qrCode.id), {
