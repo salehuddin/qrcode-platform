@@ -19,6 +19,7 @@ import { EventForm } from './Partials/EventForm';
 import { CustomizeForm } from './Partials/CustomizeForm';
 import { QRCodePreview } from './Partials/QRCodePreview';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/Components/ui/dialog';
 
 const qrTypes: Array<{
     type: QRCodeType;
@@ -110,6 +111,8 @@ export default function CreateQRCode({ folders, tags, teams, brandKits }: Props)
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [permalinkSlug, setPermalinkSlug] = useState('');
+    const [showBrandKitDialog, setShowBrandKitDialog] = useState(false);
+    const [brandKitName, setBrandKitName] = useState('');
     const [selectedFolderId, setSelectedFolderId] = useState<string>('none');
     const [selectedTeamId, setSelectedTeamId] = useState<string>('none');
     const [selectedTagIds, setSelectedTagIds] = useState<number[]>([]);
@@ -186,6 +189,23 @@ export default function CreateQRCode({ folders, tags, teams, brandKits }: Props)
 
     const handleApplyBrandKit = (kit: BrandKit) => {
         setCustomization(kit.config);
+    };
+
+    const handleSaveBrandKit = () => {
+        if (!brandKitName.trim()) {
+            alert('Please enter a name for your Brand Kit');
+            return;
+        }
+
+        router.post(route('design.brand-kits.store'), {
+            name: brandKitName,
+            config: customization,
+        }, {
+            onSuccess: () => {
+                setShowBrandKitDialog(false);
+                setBrandKitName('');
+            },
+        });
     };
 
     const encodeData = useMemo(() => {
@@ -638,7 +658,17 @@ export default function CreateQRCode({ folders, tags, teams, brandKits }: Props)
                                                     {/* Brand Kit Selector */}
                                                     {brandKits && brandKits.length > 0 && (
                                                         <div className="mb-6 pb-6 border-b">
-                                                            <Label className="mb-3 block">Apply Brand Kit</Label>
+                                                            <div className="flex items-center justify-between mb-3">
+                                                                <Label>Apply Brand Kit</Label>
+                                                                <Button
+                                                                    type="button"
+                                                                    variant="outline"
+                                                                    size="sm"
+                                                                    onClick={() => setShowBrandKitDialog(true)}
+                                                                >
+                                                                    Save as Brand Kit
+                                                                </Button>
+                                                            </div>
                                                             <div className="flex gap-3 overflow-x-auto pb-2">
                                                                 {brandKits.map((kit) => (
                                                                     <Card
@@ -721,6 +751,43 @@ export default function CreateQRCode({ folders, tags, teams, brandKits }: Props)
                     </div>
                 </div>
             </div>
+
+            {/* Save Brand Kit Dialog */}
+            <Dialog open={showBrandKitDialog} onOpenChange={setShowBrandKitDialog}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Save as Brand Kit</DialogTitle>
+                        <DialogDescription>
+                            Save your current customization as a reusable Brand Kit
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="brand-kit-name">Brand Kit Name</Label>
+                            <Input
+                                id="brand-kit-name"
+                                placeholder="My Brand Kit"
+                                value={brandKitName}
+                                onChange={(e) => setBrandKitName(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        e.preventDefault();
+                                        handleSaveBrandKit();
+                                    }
+                                }}
+                            />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setShowBrandKitDialog(false)}>
+                            Cancel
+                        </Button>
+                        <Button onClick={handleSaveBrandKit}>
+                            Save Brand Kit
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </AuthenticatedLayout>
     );
 }
