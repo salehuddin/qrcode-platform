@@ -92,23 +92,23 @@ export function AppSidebar({ user }: AppSidebarProps) {
                 {
                     title: 'Organization',
                     href: '/settings/organization',
-                    active: route().current('settings.organization.show'),
+                    active: route().current('settings.organization.*'),
                 },
                 {
                     title: 'Teams & Members',
                     href: '/team',
-                    active: route().current('team.index'),
+                    active: route().current('team.*') || route().current('teams.*'),
                 },
                 ...(user.is_platform_admin ? [
                     {
                         title: 'Email Settings',
                         href: '/admin/email-settings',
-                        active: route().current('admin.email-settings'),
+                        active: route().current('admin.email-settings*'),
                     },
                     {
                         title: 'Notifications',
                         href: '/admin/notification-settings',
-                        active: route().current('admin.notification-settings'),
+                        active: route().current('admin.notification-settings*'),
                     }
                 ] : [])
             ]
