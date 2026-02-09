@@ -23,60 +23,7 @@ Route::get('/favicon-platform.ico', function () {
     return abort(404);
 });
 
-// Temporary route to fix storage link on production
-// Diagnostics to debug broken images
-// FORCE FIX for broken storage link
-Route::get('/fix-storage-force', function () {
-    $publicStorage = public_path('storage');
-    $results = [];
 
-    try {
-        // 1. Check if it exists and is NOT a link (the root cause)
-        if (file_exists($publicStorage) && !is_link($publicStorage)) {
-            $results['step_1'] = 'Found physical directory at public/storage. Attempting to delete...';
-            
-            // recursively delete the directory
-            Illuminate\Support\Facades\File::deleteDirectory($publicStorage);
-            
-            if (!file_exists($publicStorage)) {
-                $results['step_1_status'] = 'SUCCESS: Directory deleted.';
-            } else {
-                $results['step_1_status'] = 'FAILED: Could not delete directory. Check permissions.';
-            }
-        } else {
-            $results['step_1'] = 'No physical directory found (or it is already a link).';
-        }
-
-        // 2. Create the link
-        if (!file_exists($publicStorage)) {
-            Artisan::call('storage:link');
-            $results['step_2'] = 'Ran storage:link.';
-            $results['step_2_output'] = Artisan::output();
-        } else {
-            $results['step_2'] = 'Skipped storage:link because target still exists.';
-        }
-
-        // 3. Final Verification
-        $results['final_status'] = is_link($publicStorage) ? 'FIXED: public/storage is now a symbolic link.' : 'STILL BROKEN';
-        
-    } catch (\Exception $e) {
-        $results['error'] = $e->getMessage();
-        $results['trace'] = $e->getTraceAsString();
-    }
-
-    return $results;
-});
-
-Route::get('/debug-favicon', function () {
-    $path = public_path('favicon.ico');
-    return [
-        'path' => $path,
-        'exists' => file_exists($path),
-        'size' => file_exists($path) ? filesize($path) : 'N/A',
-        'perms' => file_exists($path) ? substr(sprintf('%o', fileperms($path)), -4) : 'N/A',
-        'is_readable' => is_readable($path),
-    ];
-});
 
 Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
