@@ -10,6 +10,16 @@ import type { PageProps, QRCode } from '@/types';
 import { useState, useEffect } from 'react';
 import { Download, Filter, Calendar as CalendarIcon, X } from 'lucide-react';
 
+import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
+import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/Components/ui/chart"
+
+const chartConfig = {
+  scans: {
+    label: "Scans",
+    color: "hsl(var(--primary))",
+  },
+} satisfies ChartConfig
+
 interface TimeSeriesPoint {
     label: string;
     value: number;
@@ -280,30 +290,20 @@ export default function AnalyticsDashboard({
                                 <CardTitle>Scans Over Time</CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <div className="space-y-4">
-                                    <div className="flex items-end gap-2 h-40">
-                                        {scansOverTime.length > 0 ? scansOverTime.map((point) => (
-                                            <div key={point.label} className="flex-1 flex flex-col items-center gap-1 group">
-                                                <div className="relative w-full flex justify-center">
-                                                     <div
-                                                        className="w-full max-w-[40px] min-w-[4px] rounded-t bg-primary/70 group-hover:bg-primary transition-colors"
-                                                        style={{
-                                                            height: `${maxScanValue > 0 ? (point.value / maxScanValue) * 100 : 0}%`,
-                                                            minHeight: point.value > 0 ? '4px' : '0'
-                                                        }}
-                                                    />
-                                                    {/* Tooltip on hover could go here, relying on native title for now */}
-                                                </div>
-                                                <span className="text-[10px] text-muted-foreground truncate w-full text-center">
-                                                    {point.label}
-                                                </span>
-                                            </div>
-                                        )) : (
-                                            <div className="w-full h-full flex items-center justify-center text-muted-foreground text-sm">
-                                                No data for this period
-                                            </div>
-                                        )}
-                                    </div>
+                                <div className="h-[300px] w-full">
+                                    <ChartContainer config={chartConfig} className="h-full w-full">
+                                        <BarChart accessibilityLayer data={scansOverTime}>
+                                            <CartesianGrid vertical={false} />
+                                            <XAxis
+                                                dataKey="label"
+                                                tickLine={false}
+                                                tickMargin={10}
+                                                axisLine={false}
+                                            />
+                                            <ChartTooltip content={<ChartTooltipContent />} />
+                                            <Bar dataKey="value" fill="var(--color-scans)" radius={4} />
+                                        </BarChart>
+                                    </ChartContainer>
                                 </div>
                             </CardContent>
                         </Card>
