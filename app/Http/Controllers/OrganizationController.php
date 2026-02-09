@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Services\OrganizationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class OrganizationController extends Controller
@@ -51,14 +52,24 @@ class OrganizationController extends Controller
             'logo' => 'nullable|image|max:1024', // Max 1MB
         ]);
 
-        if ($request->hasFile('logo')) {
-            $path = $request->file('logo')->store('organizations/logos', 'public');
-            $data['logo_url'] = '/storage/' . $path;
+        try {
+            if ($request->hasFile('logo')) {
+                $path = $request->file('logo')->store('organizations/logos', 'public');
+                $data['logo_url'] = '/storage/' . $path;
+                unset($data['logo']); // Remove file object from data
+            }
+
+            $this->organizationService->updateOrganization($organization, $data);
+
+            return back()->with('success', 'Organization updated successfully.');
+        } catch (\Exception $e) {
+            Log::error('Organization update failed: ' . $e->getMessage(), [
+                'organization_id' => $organization->id,
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return back()->with('error', 'Failed to update organization settings. Please check system logs.');
         }
-
-        $this->organizationService->updateOrganization($organization, $data);
-
-        return back()->with('success', 'Organization updated successfully.');
     }
 
     /**
