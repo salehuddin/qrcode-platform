@@ -138,17 +138,18 @@ export default function EditQRCode({ qrCode, folders, tags, brandKits }: EditQRC
 
     // Parse existing content to populate form fields
     useEffect(() => {
-        const content = qrCode.content;
+        // For dynamic QRs, parse destination_url. For static QRs, parse content
+        const dataSource = mode === 'dynamic' ? (qrCode.destination_url || '') : qrCode.content;
         const parsedData: any = {};
 
         try {
             switch (selectedType) {
                 case 'url':
-                    parsedData.url = qrCode.destination_url || content;
+                    parsedData.url = qrCode.destination_url || qrCode.content;
                     break;
                 case 'wifi':
                     // Parse WIFI:T:WPA;S:MyNetwork;P:password;;
-                    const wifiMatch = content.match(/WIFI:T:([^;]+);S:([^;]+);P:([^;]+);/);
+                    const wifiMatch = dataSource.match(/WIFI:T:([^;]+);S:([^;]+);P:([^;]+);/);
                     if (wifiMatch) {
                         parsedData.encryption = wifiMatch[1];
                         parsedData.ssid = wifiMatch[2];
@@ -157,9 +158,12 @@ export default function EditQRCode({ qrCode, folders, tags, brandKits }: EditQRC
                     break;
                 case 'vcard':
                     // Basic vCard parsing
-                    const nameMatch = content.match(/FN:([^\n]+)/);
-                    const phoneMatch = content.match(/TEL[^:]*:([^\n]+)/);
-                    const emailMatch = content.match(/EMAIL:([^\n]+)/);
+                    const nameMatch = dataSource.match(/FN:([^\n]+)/);
+                    const phoneMatch = dataSource.match(/TEL[^:]*:([^\n]+)/);
+                    const emailMatch = dataSource.match(/EMAIL:([^\n]+)/);
+                    const orgMatch = dataSource.match(/ORG:([^\n]+)/);
+                    const titleMatch = dataSource.match(/TITLE:([^\n]+)/);
+                    const websiteMatch = dataSource.match(/URL:([^\n]+)/);
                     if (nameMatch) {
                         const nameParts = nameMatch[1].split(' ');
                         parsedData.firstName = nameParts[0] || '';
@@ -167,6 +171,31 @@ export default function EditQRCode({ qrCode, folders, tags, brandKits }: EditQRC
                     }
                     if (phoneMatch) parsedData.phone = phoneMatch[1];
                     if (emailMatch) parsedData.email = emailMatch[1];
+                    if (orgMatch) parsedData.organization = orgMatch[1];
+                    if (titleMatch) parsedData.title = titleMatch[1];
+                    if (websiteMatch) parsedData.website = websiteMatch[1];
+                    break;
+                case 'phone':
+                    // Parse tel:+1234567890
+                    const phoneNumMatch = dataSource.match(/^tel:(.+)$/);
+                    if (phoneNumMatch) parsedData.number = phoneNumMatch[1];
+                    break;
+                case 'email':
+                    // Parse mailto:recipient@example.com?subject=...&body=...
+                    const emailToMatch = dataSource.match(/^mailto:([^?]+)/);
+                    if (emailToMatch) parsedData.to = emailToMatch[1];
+                    const subjectMatch = dataSource.match(/subject=([^&]+)/);
+                    if (subjectMatch) parsedData.subject = decodeURIComponent(subjectMatch[1]);
+                    const bodyMatch = dataSource.match(/body=(.+)$/);
+                    if (bodyMatch) parsedData.body = decodeURIComponent(bodyMatch[1]);
+                    break;
+                case 'sms':
+                    // Parse SMSTO:number:message
+                    const smsMatch = dataSource.match(/^SMSTO:([^:]+):(.*)$/);
+                    if (smsMatch) {
+                        parsedData.phone = smsMatch[1];
+                        parsedData.message = smsMatch[2];
+                    }
                     break;
                 // Add more parsing for other types as needed
                 default:
@@ -272,12 +301,13 @@ export default function EditQRCode({ qrCode, folders, tags, brandKits }: EditQRC
     const qrContent = useMemo(() => {
         if (!selectedType) return '';
 
-        if (mode === 'dynamic' && permalink) {
-            return permalink;
+        if (mode === 'dynamic') {
+            // Use existing QR code content to prevent regeneration on edit
+            return qrCode.content;
         }
 
         return encodeData;
-    }, [selectedType, mode, permalink, encodeData]);
+    }, [selectedType, mode, qrCode.content, encodeData]);
 
     const renderForm = () => {
         switch (selectedType) {
