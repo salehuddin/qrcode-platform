@@ -188,9 +188,9 @@ export function AppSidebar({ user }: AppSidebarProps) {
                                             key={subItem.href}
                                             href={subItem.href}
                                             className={cn(
-                                                'flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:bg-sidebar-accent',
+                                                'flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:bg-sidebar-accent relative',
                                                 subItem.active
-                                                    ? 'bg-sidebar-accent text-sidebar-accent-foreground'
+                                                    ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium before:absolute before:left-0 before:top-1 before:bottom-1 before:w-1 before:bg-primary before:rounded-r'
                                                     : 'text-sidebar-foreground',
                                                 collapsed && 'justify-center'
                                             )}
@@ -211,9 +211,9 @@ export function AppSidebar({ user }: AppSidebarProps) {
                                 key={item.href}
                                 href={item.href}
                                 className={cn(
-                                    'flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:bg-sidebar-accent',
+                                    'flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:bg-sidebar-accent relative',
                                     item.active
-                                        ? 'bg-sidebar-accent text-sidebar-accent-foreground'
+                                        ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium before:absolute before:left-0 before:top-1 before:bottom-1 before:w-1 before:bg-primary before:rounded-r'
                                         : 'text-sidebar-foreground',
                                     collapsed && 'justify-center'
                                 )}
